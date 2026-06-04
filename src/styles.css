@@ -1,0 +1,199 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 民事诉讼法查询系统 — 庄重权威设计系统
+ * 深蓝主调 + 金色点缀，参考最高法官网与传统法典装帧
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-soft: var(--gold-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --color-parchment: var(--parchment);
+  --color-ink: var(--ink);
+
+  --font-serif-cn: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-sans-cn: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  --shadow-elegant: 0 8px 32px -12px color-mix(in oklab, var(--primary) 35%, transparent);
+  --shadow-card: 0 2px 12px -4px color-mix(in oklab, var(--primary) 18%, transparent);
+  --gradient-hero: linear-gradient(135deg, var(--primary) 0%, oklch(0.20 0.05 264) 50%, oklch(0.12 0.04 264) 100%);
+  --gradient-gold: linear-gradient(135deg, var(--gold) 0%, oklch(0.85 0.13 85) 100%);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* 深蓝 + 金 + 米色 */
+  --background: oklch(0.985 0.008 85);     /* 米白纸感 */
+  --foreground: oklch(0.20 0.04 265);
+  --parchment: oklch(0.97 0.015 85);
+  --ink: oklch(0.18 0.03 265);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.04 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.04 265);
+
+  /* 深邃官方蓝 #0f1b3d → oklch */
+  --primary: oklch(0.24 0.08 265);
+  --primary-foreground: oklch(0.97 0.015 85);
+
+  --secondary: oklch(0.94 0.02 260);
+  --secondary-foreground: oklch(0.24 0.08 265);
+
+  --muted: oklch(0.95 0.015 260);
+  --muted-foreground: oklch(0.48 0.03 265);
+
+  --accent: oklch(0.36 0.09 265);          /* 较亮的深蓝 #1e3a5f */
+  --accent-foreground: oklch(0.97 0.015 85);
+
+  /* 金色 #c9a84c */
+  --gold: oklch(0.74 0.13 85);
+  --gold-foreground: oklch(0.20 0.04 265);
+  --gold-soft: oklch(0.92 0.06 88);
+
+  --highlight: oklch(0.88 0.16 95);        /* 搜索高亮 */
+
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.88 0.015 260);
+  --input: oklch(0.92 0.012 260);
+  --ring: oklch(0.74 0.13 85);
+}
+
+.dark {
+  --background: oklch(0.13 0.03 265);
+  --foreground: oklch(0.96 0.015 85);
+  --parchment: oklch(0.17 0.035 265);
+  --ink: oklch(0.96 0.015 85);
+  --card: oklch(0.18 0.04 265);
+  --card-foreground: oklch(0.96 0.015 85);
+  --popover: oklch(0.18 0.04 265);
+  --popover-foreground: oklch(0.96 0.015 85);
+  --primary: oklch(0.74 0.13 85);
+  --primary-foreground: oklch(0.13 0.03 265);
+  --secondary: oklch(0.24 0.05 265);
+  --secondary-foreground: oklch(0.96 0.015 85);
+  --muted: oklch(0.22 0.04 265);
+  --muted-foreground: oklch(0.70 0.03 85);
+  --accent: oklch(0.36 0.09 265);
+  --accent-foreground: oklch(0.96 0.015 85);
+  --gold: oklch(0.78 0.14 85);
+  --gold-foreground: oklch(0.13 0.03 265);
+  --gold-soft: oklch(0.30 0.08 85);
+  --highlight: oklch(0.65 0.18 90);
+  --destructive: oklch(0.65 0.20 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.74 0.13 85);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { font-family: var(--font-sans-cn); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans-cn);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, .font-serif {
+    font-family: var(--font-serif-cn);
+    letter-spacing: 0.01em;
+  }
+  .article-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .article-text {
+    font-family: var(--font-serif-cn);
+    line-height: 2;
+    font-size: 1.0625rem;
+    letter-spacing: 0.02em;
+    text-align: justify;
+    text-justify: inter-ideograph;
+    word-break: break-word;
+    hanging-punctuation: allow-end;
+  }
+
+  @media (max-width: 640px) {
+    .article-text {
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+    .article-text--clause {
+      padding-left: 1em;
+    }
+    .article-text--lead {
+      text-indent: 1.5em;
+    }
+  }
+
+  /* 正文段落：首行缩进两字 */
+  .article-text--lead {
+    text-indent: 2em;
+  }
+
+  /* 分项（一）（二）：左对齐缩进，无首行再缩进 */
+  .article-text--clause {
+    padding-left: 2em;
+    text-indent: 0;
+  }
+
+  /* 工作台暗色主题 */
+  .article-body-dark .article-text {
+    color: oklch(0.93 0.015 260);
+  }
+
+  /* 三栏导航：左中右三列等宽对齐 */
+  .article-nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .article-nav > :first-child { justify-self: start; }
+  .article-nav > :nth-child(2) { justify-self: center; }
+  .article-nav > :last-child { justify-self: end; }
+  mark.search-hit {
+    background-color: var(--color-highlight);
+    color: var(--color-ink);
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+}

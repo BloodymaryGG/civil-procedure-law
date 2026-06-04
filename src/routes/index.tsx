@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Library, Scale, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb, BookOpen } from "lucide-react";
+import { Search, Library, Scale, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
-import type { InterpretationArticle, KnowledgeItem, RelateResult } from "@/data/types";
+import type { InterpretationArticle } from "@/data/types";
 import { ArticleBody, ArticleNav } from "@/components/site-chrome";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { knowledgeData as knowledgeList } from "@/data/knowledge";
-import { getRelatedKnowledge } from "@/lib/relate";
-import KnowledgeCard from "@/components/knowledge-card";
 
 /* ─────────────────────── 中文条号解析 ─────────────────────── */
 const CN: Record<string, number> = { 零:0, 一:1, 二:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9, 十:10, 百:100 };
@@ -38,7 +35,7 @@ export function Workbench() {
   const [current, setCurrent] = useState(1);
   const [search, setSearch] = useState("");
   const [sidebarTab, setSidebarTab] = useState<"toc" | "jump">("toc");
-  const [panelTab, setPanelTab] = useState<"interp" | "knowledge">("interp");
+
   const [jumpInput, setJumpInput] = useState("");
   const [mounted, setMounted] = useState(false);
   const [mobileTab, setMobileTab] = useState<"article" | "side" | "panel">("article");
@@ -83,15 +80,9 @@ export function Workbench() {
       .slice(0, 30);
   }, [search]);
 
-  const articleMapForRelate = useMemo(() => new Map(lawArticles.map((a) => [a.number, a])), []);
-
   const relatedInterps = useMemo(
     () => interpretations.filter((i) => i.relatedLawArticles.includes(current)),
     [current]
-  );
-  const knowledgeResult = useMemo<RelateResult<KnowledgeItem>>(
-    () => getRelatedKnowledge(current, article, knowledgeList, articleMapForRelate),
-    [current, article]
   );
 
   const goTo = (n: number) => {
@@ -113,9 +104,7 @@ export function Workbench() {
       showMobileSearch={showMobileSearch} setShowMobileSearch={setShowMobileSearch}
       sidebarTab={sidebarTab} setSidebarTab={setSidebarTab}
       jumpInput={jumpInput} setJumpInput={setJumpInput}
-      panelTab={panelTab} setPanelTab={setPanelTab}
       relatedInterps={relatedInterps}
-      knowledgeResult={knowledgeResult}
       tocActiveRef={tocActiveRef}
     />;
   }
@@ -304,43 +293,20 @@ export function Workbench() {
 
       {/* ───── 右栏：关联面板 ───── */}
       <aside className="flex flex-col overflow-hidden border-l border-[#3a4f6b] bg-[#1a2332]">
-        <div className="flex border-b border-[#3a4f6b]">
-          <TabBtn active={panelTab === "interp"} onClick={() => setPanelTab("interp")} icon={<Library className="h-3.5 w-3.5" />}>
-            司法解释 <span className="ml-1 rounded bg-[#3b82f6]/20 px-1.5 text-[10px] text-[#3b82f6]">{relatedInterps.length}</span>
-          </TabBtn>
-          <TabBtn active={panelTab === "knowledge"} onClick={() => setPanelTab("knowledge")} icon={<Lightbulb className="h-3.5 w-3.5" />}>
-            知识点 <span className="ml-1 rounded bg-[#d4a853]/20 px-1.5 text-[10px] text-[#d4a853]">{knowledgeResult.items.length}</span>
-          </TabBtn>
+        <div className="flex items-center gap-2 border-b border-[#3a4f6b] px-4 py-2.5">
+          <Library className="h-3.5 w-3.5 text-[#3b82f6]" />
+          <span className="text-xs font-semibold text-[#e8edf4]">司法解释</span>
+          <span className="ml-auto rounded bg-[#3b82f6]/20 px-1.5 text-[10px] text-[#3b82f6]">{relatedInterps.length}</span>
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
-          {panelTab === "interp" ? (
-            relatedInterps.length === 0 ? (
+            {relatedInterps.length === 0 ? (
               <EmptyState
                 title="暂无直接关联的司法解释"
                 hint="该条文在《民诉法解释》《证据规定》中尚未检索到明确引用。"
               />
             ) : (
-              <>
-                {knowledgeResult.items.length > 0 && (
-                  <div className="rounded-md border border-[#3a4f6b] bg-[#1a2332] px-3 py-2 text-[11px] text-[#94a3b8]">
-                    {knowledgeResult.hint} · 知识点 {knowledgeResult.items.length}
-                  </div>
-                )}
-                {relatedInterps.map((i) => <InterpCard key={i.id} item={i} />)}
-              </>
-            )
-          ) : knowledgeResult.items.length === 0 ? (
-              <EmptyState title="暂无关联知识点" hint={knowledgeResult.hint || "该条文暂无收录的知识点。"} />
-            ) : (
-              <>
-                <div className="rounded-md border border-[#3a4f6b] bg-[#1a2332] px-3 py-2 text-[11px] text-[#94a3b8]">
-                  {knowledgeResult.hint}
-                </div>
-                {knowledgeResult.items.map((k) => (
-                  <KnowledgeCard key={k.id} knowledge={k} currentArticle={current} onGoToArticle={goTo} />
-                ))}
-              </>
+              relatedInterps.map((i) => <InterpCard key={i.id} item={i} />)
             )}
         </div>
       </aside>
@@ -354,7 +320,7 @@ function MobileLayout({
   article, chapter, prev, next,
   mobileTab, setMobileTab, showMobileSearch, setShowMobileSearch,
   sidebarTab, setSidebarTab, jumpInput, setJumpInput,
-  panelTab, setPanelTab, relatedInterps, knowledgeResult, tocActiveRef,
+  relatedInterps, tocActiveRef,
 }: {
   current: number; search: string; setSearch: (v: string) => void;
   searchHits: typeof lawArticles; goTo: (n: number) => void; parseArticleQuery: (s: string) => number | null;
@@ -364,9 +330,7 @@ function MobileLayout({
   showMobileSearch: boolean; setShowMobileSearch: (v: boolean) => void;
   sidebarTab: "toc" | "jump"; setSidebarTab: (t: "toc" | "jump") => void;
   jumpInput: string; setJumpInput: (s: string) => void;
-  panelTab: "interp" | "knowledge"; setPanelTab: (t: "interp" | "knowledge") => void;
   relatedInterps: InterpretationArticle[];
-  knowledgeResult: RelateResult<KnowledgeItem>;
   tocActiveRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const centerScrollRef = useRef<HTMLDivElement>(null);
@@ -505,28 +469,15 @@ function MobileLayout({
       {mobileTab === "panel" && (
         <div className="flex flex-col border-t border-[#3a4f6b] bg-[#1a2332]" style={{ maxHeight: "45vh" }}>
           <div className="flex border-b border-[#3a4f6b] shrink-0">
-            <TabBtn active={panelTab === "interp"} onClick={() => setPanelTab("interp")} icon={<Library className="h-3.5 w-3.5" />}>
+            <TabBtn active={true} icon={<Library className="h-3.5 w-3.5" />}>
               司法解释 <span className="text-[#3b82f6]">{relatedInterps.length}</span>
-            </TabBtn>
-            <TabBtn active={panelTab === "knowledge"} onClick={() => setPanelTab("knowledge")} icon={<Lightbulb className="h-3.5 w-3.5" />}>
-              知识点 <span className="text-[#d4a853]">{knowledgeResult.items.length}</span>
             </TabBtn>
           </div>
           <div className="overflow-y-auto p-2 space-y-2">
-            {panelTab === "interp" ? (
-              relatedInterps.length === 0 ? (
+            {relatedInterps.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[#94a3b8]">暂无关联司法解释</div>
               ) : (
                 relatedInterps.map((i) => <InterpCard key={i.id} item={i} />)
-              )
-            ) : (
-              knowledgeResult.items.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[#94a3b8]">{knowledgeResult.hint}</div>
-              ) : (
-                knowledgeResult.items.map((k) => (
-                  <KnowledgeCard key={k.id} knowledge={k} currentArticle={current} onGoToArticle={(n) => { goTo(n); setMobileTab("article"); }} />
-                ))
-              )
             )}
           </div>
         </div>

@@ -18,33 +18,64 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
   const articleMatch = q.match(/^第?\s*(\d+)\s*条?$/);
   const numQuery = articleMatch ? parseInt(articleMatch[1], 10) : null;
 
-  const hits: SearchHit[] = [];
+  // Scored hits for relevance ranking
+  interface Scored {
+    hit: SearchHit;
+    score: number;
+  }
+  const scored: Scored[] = [];
 
   for (const a of lawArticles) {
     const full = joinText(a.paragraphs);
+
+    // Exact article number match = highest priority
     if (numQuery !== null && a.number === numQuery) {
-      hits.push({ type: "law", article: a, snippet: full });
+      scored.push({ hit: { type: "law", article: a, snippet: full }, score: 1000 });
       continue;
     }
-    if (full.toLowerCase().includes(lower)) {
-      hits.push({ type: "law", article: a, snippet: makeSnippet(full, q) });
+
+    const inTitle = a.title?.toLowerCase().includes(lower);
+    const inBody = full.toLowerCase().includes(lower);
+
+    if (inTitle || inBody) {
+      let score = 0;
+      // Title match = much more relevant
+      if (inTitle) score += 500;
+      // Exact phrase match boosts score
+      if (inBody) {
+        score += 100;
+        // Multi-keyword: each match adds score
+        const keywords = q.split(/[\s,，、]+/).filter(Boolean);
+        for (const kw of keywords) {
+          if (full.toLowerCase().includes(kw.toLowerCase())) score += 10;
+          if (a.title?.toLowerCase().includes(kw.toLowerCase())) score += 50;
+        }
+      }
+      scored.push({ hit: { type: "law", article: a, snippet: makeSnippet(full, q) }, score });
     }
-    if (hits.length >= limit) break;
   }
 
   for (const i of interpretations) {
     const full = joinText(i.paragraphs);
+
     if (numQuery !== null && i.number === numQuery) {
-      hits.push({ type: "interpretation", article: i, snippet: full });
+      scored.push({ hit: { type: "interpretation", article: i, snippet: full }, score: 1000 });
       continue;
     }
+
     if (full.toLowerCase().includes(lower)) {
-      hits.push({ type: "interpretation", article: i, snippet: makeSnippet(full, q) });
+      let score = 50;
+      const keywords = q.split(/[\s,，、]+/).filter(Boolean);
+      for (const kw of keywords) {
+        if (full.toLowerCase().includes(kw.toLowerCase())) score += 10;
+      }
+      scored.push({ hit: { type: "interpretation", article: i, snippet: makeSnippet(full, q) }, score });
     }
-    if (hits.length >= limit) break;
   }
 
-  return hits;
+  // Sort by score descending, then return top hits
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((s) => s.hit);
 }
 
 function makeSnippet(text: string, query: string, ctx = 36): string {

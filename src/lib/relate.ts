@@ -1,4 +1,4 @@
-import type { RelateResult, KnowledgeItem, CaseItem, LawArticle, LawChapter } from "@/data/types";
+import type { RelateResult, KnowledgeItem, LawArticle } from "@/data/types";
 import { lawChapters } from "@/data/law-articles";
 
 /** 获取当前条文所在的目录分组 articleId 集合 */
@@ -112,75 +112,6 @@ export function getRelatedKnowledge(
   }
 
   return { items: [], mode: "generated", hint: "" };
-}
-
-/* ────────────── 案例关联 ────────────── */
-
-export function getRelatedCases(
-  current: number,
-  article: LawArticle | undefined,
-  allCases: CaseItem[],
-  articleMap: Map<number, LawArticle>,
-): RelateResult<CaseItem> {
-  const chapterIds = new Set(getChapterArticleIds(current));
-
-  const scored = allCases
-    .map((c) => {
-      let score = scoreByProximity(current, c.articleIds);
-      const linkHit = c.articleLinks?.some((l) => l.articleId === current);
-      if (linkHit) score = Math.max(score, 98);
-
-      if (score < 100 && c.articleIds.some((id) => chapterIds.has(id))) {
-        score = Math.max(score, 55);
-      }
-      if (article && samePartChapter(article, c.articleIds, articleMap)) {
-        score = Math.max(score, 50);
-      }
-      if (article) {
-        const focusText = `${c.focus}${c.summary}${c.facts ?? ""}`;
-        if (focusText.includes(`第${current}条`)) score = Math.max(score, 95);
-        // keyword match
-        const articleText = article.paragraphs.join("").slice(0, 200);
-        for (let i = 0; i < focusText.length - 3; i++) {
-          const seg = focusText.slice(i, i + 4);
-          if (seg.length >= 3 && articleText.includes(seg)) {
-            score += 10;
-            break;
-          }
-        }
-      }
-      return { item: c, score };
-    })
-    .filter((x) => x.score >= 25)
-    .sort((a, b) => b.score - a.score);
-
-  const top = scored.slice(0, 5).map((x) => x.item);
-  const hasExact = top.some((c) => c.articleIds.includes(current));
-
-  if (hasExact) {
-    return {
-      items: top.filter(
-        (c) =>
-          c.articleIds.includes(current) ||
-          scoreByProximity(current, c.articleIds) >= 50,
-      ),
-      mode: "exact",
-      hint: "引用本条或相邻条文的案例",
-    };
-  }
-  if (top.length > 0) {
-    return {
-      items: top,
-      mode: "chapter",
-      hint: "同章节参考案例",
-    };
-  }
-
-  return {
-    items: [],
-    mode: "generated",
-    hint: "本条暂无收录案例",
-  };
 }
 
 /* ────────────── 自动生成知识点 ────────────── */

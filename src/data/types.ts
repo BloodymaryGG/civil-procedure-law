@@ -10,6 +10,7 @@ export type LawChapter = {
 
 export type LawArticle = {
   number: number;
+  title: string;       // 条文主旨
   partTitle: string;
   chapterTitle: string;
   sectionTitle?: string;

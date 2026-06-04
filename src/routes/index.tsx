@@ -1,17 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, BookOpen, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb, Scale as GavelIcon } from "lucide-react";
+import { Search, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
-import type { InterpretationArticle, KnowledgeItem, CaseItem, RelateResult } from "@/data/types";
+import type { InterpretationArticle, KnowledgeItem, RelateResult } from "@/data/types";
 import { ArticleBody, ArticleNav } from "@/components/site-chrome";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { knowledgeData as knowledgeList } from "@/data/knowledge";
-import { cases as caseList } from "@/data/cases";
-import { getRelatedKnowledge, getRelatedCases } from "@/lib/relate";
+import { getRelatedKnowledge } from "@/lib/relate";
 import KnowledgeCard from "@/components/knowledge-card";
-import CaseCard from "@/components/case-card";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,7 +49,7 @@ function Workbench() {
   const [current, setCurrent] = useState(1);
   const [search, setSearch] = useState("");
   const [sidebarTab, setSidebarTab] = useState<"toc" | "jump">("toc");
-  const [panelTab, setPanelTab] = useState<"interp" | "chapter" | "knowledge" | "case">("interp");
+  const [panelTab, setPanelTab] = useState<"interp" | "knowledge">("interp");
   const [jumpInput, setJumpInput] = useState("");
   const [mounted, setMounted] = useState(false);
   const [mobileTab, setMobileTab] = useState<"article" | "side" | "panel">("article");
@@ -86,7 +83,15 @@ function Workbench() {
       const a = articleMap.get(n);
       return a ? [a] : [];
     }
-    return lawArticles.filter((a) => a.paragraphs.some((p) => p.includes(q))).slice(0, 30);
+    // 按相关性排序：标题匹配优先
+    return lawArticles
+      .filter((a) => a.title?.includes(q) || a.paragraphs.some((p) => p.includes(q)))
+      .sort((a, b) => {
+        const aTitle = a.title?.includes(q) ? 1 : 0;
+        const bTitle = b.title?.includes(q) ? 1 : 0;
+        return bTitle - aTitle;
+      })
+      .slice(0, 30);
   }, [search]);
 
   const articleMapForRelate = useMemo(() => new Map(lawArticles.map((a) => [a.number, a])), []);
@@ -95,17 +100,8 @@ function Workbench() {
     () => interpretations.filter((i) => i.relatedLawArticles.includes(current)),
     [current]
   );
-  const sameChapter = useMemo(
-    () => chapter ? lawArticles.filter((a) => a.number >= chapter.articleStart && a.number <= chapter.articleEnd) : [],
-    [chapter]
-  );
-
   const knowledgeResult = useMemo<RelateResult<KnowledgeItem>>(
     () => getRelatedKnowledge(current, article, knowledgeList, articleMapForRelate),
-    [current, article]
-  );
-  const caseResult = useMemo<RelateResult<CaseItem>>(
-    () => getRelatedCases(current, article, caseList, articleMapForRelate),
     [current, article]
   );
 
@@ -129,8 +125,8 @@ function Workbench() {
       sidebarTab={sidebarTab} setSidebarTab={setSidebarTab}
       jumpInput={jumpInput} setJumpInput={setJumpInput}
       panelTab={panelTab} setPanelTab={setPanelTab}
-      relatedInterps={relatedInterps} sameChapter={sameChapter}
-      knowledgeResult={knowledgeResult} caseResult={caseResult}
+      relatedInterps={relatedInterps}
+      knowledgeResult={knowledgeResult}
       tocActiveRef={tocActiveRef}
     />;
   }
@@ -303,7 +299,7 @@ function Workbench() {
       <section ref={centerScrollRef} className="overflow-y-auto bg-[#0f1419]">
         <div className="mx-auto max-w-3xl px-8 py-8">
           <Breadcrumb chapter={chapter} />
-          <ArticleTitle current={current} />
+          <ArticleTitle current={current} article={article} />
           <ArticleContent article={article} />
           <ArticleBottomNav
             current={current} prev={prev} next={next} goTo={goTo}
@@ -319,12 +315,6 @@ function Workbench() {
           </TabBtn>
           <TabBtn active={panelTab === "knowledge"} onClick={() => setPanelTab("knowledge")} icon={<Lightbulb className="h-3.5 w-3.5" />}>
             知识点 <span className="ml-1 rounded bg-[#d4a853]/20 px-1.5 text-[10px] text-[#d4a853]">{knowledgeResult.items.length}</span>
-          </TabBtn>
-          <TabBtn active={panelTab === "case"} onClick={() => setPanelTab("case")} icon={<GavelIcon className="h-3.5 w-3.5" />}>
-            案例 <span className="ml-1 rounded bg-[#d4a853]/20 px-1.5 text-[10px] text-[#d4a853]">{caseResult.items.length}</span>
-          </TabBtn>
-          <TabBtn active={panelTab === "chapter"} onClick={() => setPanelTab("chapter")} icon={<BookOpen className="h-3.5 w-3.5" />}>
-            同章 <span className="ml-1 rounded bg-[#d4a853]/20 px-1.5 text-[10px] text-[#d4a853]">{sameChapter.length}</span>
           </TabBtn>
         </div>
 
@@ -345,8 +335,7 @@ function Workbench() {
                 {relatedInterps.map((i) => <InterpCard key={i.id} item={i} />)}
               </>
             )
-          ) : panelTab === "knowledge" ? (
-            knowledgeResult.items.length === 0 ? (
+          ) : knowledgeResult.items.length === 0 ? (
               <EmptyState title="暂无关联知识点" hint={knowledgeResult.hint || "该条文暂无收录的知识点。"} />
             ) : (
               <>
@@ -357,40 +346,7 @@ function Workbench() {
                   <KnowledgeCard key={k.id} knowledge={k} currentArticle={current} onGoToArticle={goTo} />
                 ))}
               </>
-            )
-          ) : panelTab === "case" ? (
-            caseResult.items.length === 0 ? (
-              <EmptyState title="暂无关联案例" hint={caseResult.hint || "该条文暂无收录的案例。"} />
-            ) : (
-              <>
-                <div className="rounded-md border border-[#3a4f6b] bg-[#1a2332] px-3 py-2 text-[11px] text-[#94a3b8]">
-                  {caseResult.hint}
-                </div>
-                {caseResult.items.map((c) => (
-                  <CaseCard key={c.id} caseItem={c} currentArticle={current} onGoToArticle={goTo} />
-                ))}
-              </>
-            )
-          ) : (
-            sameChapter.map((a) => (
-              <button
-                key={a.number}
-                onClick={() => goTo(a.number)}
-                className={`block w-full rounded-md border p-3 text-left transition-all ${
-                  a.number === current
-                    ? "border-[#d4a853] bg-[#d4a853]/10"
-                    : "border-[#3a4f6b] bg-[#243044] hover:border-[#3b82f6]"
-                }`}
-              >
-                <div className="flex items-center gap-2 text-xs">
-                  <span className={`rounded px-1.5 py-0.5 font-mono ${a.number === current ? "bg-[#d4a853] text-[#0f1419]" : "bg-[#3b82f6]/20 text-[#3b82f6]"}`}>
-                    第 {a.number} 条
-                  </span>
-                </div>
-                <p className="mt-1.5 line-clamp-2 text-xs text-[#e8edf4]/80 leading-relaxed">{a.paragraphs[0]}</p>
-              </button>
-            ))
-          )}
+            )}
         </div>
       </aside>
     </div>
@@ -403,7 +359,7 @@ function MobileLayout({
   article, chapter, prev, next,
   mobileTab, setMobileTab, showMobileSearch, setShowMobileSearch,
   sidebarTab, setSidebarTab, jumpInput, setJumpInput,
-  panelTab, setPanelTab, relatedInterps, sameChapter, knowledgeResult, caseResult, tocActiveRef,
+  panelTab, setPanelTab, relatedInterps, knowledgeResult, tocActiveRef,
 }: {
   current: number; search: string; setSearch: (v: string) => void;
   searchHits: typeof lawArticles; goTo: (n: number) => void; parseArticleQuery: (s: string) => number | null;
@@ -413,9 +369,9 @@ function MobileLayout({
   showMobileSearch: boolean; setShowMobileSearch: (v: boolean) => void;
   sidebarTab: "toc" | "jump"; setSidebarTab: (t: "toc" | "jump") => void;
   jumpInput: string; setJumpInput: (s: string) => void;
-  panelTab: "interp" | "chapter" | "knowledge" | "case"; setPanelTab: (t: "interp" | "chapter" | "knowledge" | "case") => void;
-  relatedInterps: InterpretationArticle[]; sameChapter: typeof lawArticles;
-  knowledgeResult: RelateResult<KnowledgeItem>; caseResult: RelateResult<CaseItem>;
+  panelTab: "interp" | "knowledge"; setPanelTab: (t: "interp" | "knowledge") => void;
+  relatedInterps: InterpretationArticle[];
+  knowledgeResult: RelateResult<KnowledgeItem>;
   tocActiveRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const centerScrollRef = useRef<HTMLDivElement>(null);
@@ -486,7 +442,7 @@ function MobileLayout({
       <div ref={centerScrollRef} className="flex-1 overflow-y-auto">
         <div className="px-4 py-5">
           <Breadcrumb chapter={chapter} />
-          <ArticleTitle current={current} />
+          <ArticleTitle current={current} article={article} />
           <ArticleContent article={article} variant="dark" />
           <ArticleBottomNav
             current={current} prev={prev} next={next} goTo={goTo}
@@ -560,12 +516,6 @@ function MobileLayout({
             <TabBtn active={panelTab === "knowledge"} onClick={() => setPanelTab("knowledge")} icon={<Lightbulb className="h-3.5 w-3.5" />}>
               知识点 <span className="text-[#d4a853]">{knowledgeResult.items.length}</span>
             </TabBtn>
-            <TabBtn active={panelTab === "case"} onClick={() => setPanelTab("case")} icon={<GavelIcon className="h-3.5 w-3.5" />}>
-              案例 <span className="text-[#d4a853]">{caseResult.items.length}</span>
-            </TabBtn>
-            <TabBtn active={panelTab === "chapter"} onClick={() => setPanelTab("chapter")} icon={<BookOpen className="h-3.5 w-3.5" />}>
-              同章 <span className="text-[#d4a853]">{sameChapter.length}</span>
-            </TabBtn>
           </div>
           <div className="overflow-y-auto p-2 space-y-2">
             {panelTab === "interp" ? (
@@ -574,7 +524,7 @@ function MobileLayout({
               ) : (
                 relatedInterps.map((i) => <InterpCard key={i.id} item={i} />)
               )
-            ) : panelTab === "knowledge" ? (
+            ) : (
               knowledgeResult.items.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[#94a3b8]">{knowledgeResult.hint}</div>
               ) : (
@@ -582,22 +532,6 @@ function MobileLayout({
                   <KnowledgeCard key={k.id} knowledge={k} currentArticle={current} onGoToArticle={(n) => { goTo(n); setMobileTab("article"); }} />
                 ))
               )
-            ) : panelTab === "case" ? (
-              caseResult.items.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[#94a3b8]">{caseResult.hint}</div>
-              ) : (
-                caseResult.items.map((c) => (
-                  <CaseCard key={c.id} caseItem={c} currentArticle={current} onGoToArticle={(n) => { goTo(n); setMobileTab("article"); }} />
-                ))
-              )
-            ) : (
-              sameChapter.map((a) => (
-                <button key={a.number} onClick={() => { goTo(a.number); setMobileTab("article"); }}
-                  className="block w-full rounded-md border border-[#3a4f6b] bg-[#243044] p-2.5 text-left">
-                  <span className="rounded bg-[#3b82f6]/20 px-1.5 py-0.5 text-[10px] text-[#3b82f6]">第 {a.number} 条</span>
-                  <p className="mt-1 text-xs text-[#e8edf4]/80 line-clamp-2">{a.paragraphs[0]}</p>
-                </button>
-              ))
             )}
           </div>
         </div>
@@ -634,12 +568,17 @@ function Breadcrumb({ chapter }: { chapter: typeof lawChapters[number] | undefin
   );
 }
 
-function ArticleTitle({ current }: { current: number }) {
+function ArticleTitle({ current, article }: { current: number; article?: typeof lawArticles[number] }) {
   return (
     <div className="mt-4 pb-6 border-b border-[#3a4f6b]">
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-3 max-sm:flex-col max-sm:gap-1">
         <h2 className="font-serif text-4xl font-bold text-[#d4a853] max-sm:text-2xl">第 {current} 条</h2>
-        <span className="text-xs text-[#94a3b8]">/ 共 {TOTAL_LAW_ARTICLES} 条</span>
+        {article?.title && (
+          <span className="text-sm font-medium text-[#e8edf4] max-sm:ml-0.5">
+            · {article.title}
+          </span>
+        )}
+        <span className="text-xs text-[#94a3b8] ml-auto max-sm:ml-0">/ 共 {TOTAL_LAW_ARTICLES} 条</span>
       </div>
     </div>
   );

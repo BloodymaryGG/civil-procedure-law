@@ -29,7 +29,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build for GitHub Pages
-        run: npm run build:static
+        run: npm run build
         env:
           VITE_BASE_PATH: /civil-procedure-law/
 

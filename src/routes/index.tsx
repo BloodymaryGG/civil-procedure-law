@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Library, Scale, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree } from "lucide-react";
+import { Search, Library, Scale, ShieldCheck, Sparkles, BookOpen, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
 import type { InterpretationArticle } from "@/data/types";

@@ -5,10 +5,12 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
 
+const base = process.env.VITE_BASE_PATH || "/";
+
 export default defineConfig({
-  base: "/civil-procedure-law/",
+  base,
   plugins: [
-    TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
+    TanStackRouterVite({ target: "react", autoCodeSplitting: false }),
     react(),
     tailwindcss(),
     tsconfigPaths(),
@@ -24,29 +26,26 @@ export default defineConfig({
         display: "standalone",
         orientation: "any",
         lang: "zh-CN",
+        start_url: base,
+        scope: base,
         icons: [
-          { src: "/pwa-192.png", sizes: "192x192", type: "image/png" },
-          { src: "/pwa-512.png", sizes: "512x512", type: "image/png" },
-          { src: "/pwa-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          { src: "pwa-192.png", sizes: "192x192", type: "image/png" },
+          { src: "pwa-512.png", sizes: "512x512", type: "image/png" },
+          { src: "pwa-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,json}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https?:\/\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "external-cache",
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
-            },
-          },
-        ],
       },
     }),
   ],
   build: {
     outDir: "dist-static",
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
 });

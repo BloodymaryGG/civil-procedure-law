@@ -13,8 +13,8 @@ import KnowledgeCard from "@/components/knowledge-card";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "民事诉讼法查询工作台 · 2024现行版" },
-      { name: "description", content: "民事诉讼法学习与查询工作台：目录浏览、精准定位、关联司法解释联动。" },
+      { title: "民事诉讼法及司法解释 · 2024现行版" },
+      { name: "description", content: "民事诉讼法及司法解释查询系统：法条全文、司法解释联动、知识点学习。" },
     ],
   }),
   component: Workbench,
@@ -83,12 +83,23 @@ function Workbench() {
       const a = articleMap.get(n);
       return a ? [a] : [];
     }
-    // 按相关性排序：标题匹配优先
+    // 精确搜索：独立词匹配优先
+    const isWordMatch = (text: string) => {
+      const compounds = "法定被原被上受申委代诉请应的负请举";
+      const idx = text.indexOf(q);
+      if (idx < 0) return false;
+      const before = text[idx - 1] || "";
+      const after = text[idx + q.length] || "";
+      return !compounds.includes(before) && !compounds.includes(after);
+    };
     return lawArticles
-      .filter((a) => a.title?.includes(q) || a.paragraphs.some((p) => p.includes(q)))
+      .filter((a) => {
+        if (a.title?.includes(q) && isWordMatch(a.title)) return true;
+        return a.paragraphs.some((p) => isWordMatch(p));
+      })
       .sort((a, b) => {
-        const aTitle = a.title?.includes(q) ? 1 : 0;
-        const bTitle = b.title?.includes(q) ? 1 : 0;
+        const aTitle = a.title?.includes(q) && isWordMatch(a.title) ? 1 : 0;
+        const bTitle = b.title?.includes(q) && isWordMatch(b.title) ? 1 : 0;
         return bTitle - aTitle;
       })
       .slice(0, 30);
@@ -148,10 +159,10 @@ function Workbench() {
             <Scale className="h-4 w-4 text-[#d4a853]" />
           </div>
           <h1 className="font-serif text-lg font-bold text-[#d4a853] whitespace-nowrap">
-            民事诉讼法查询工作台
+            民事诉讼法及司法解释
           </h1>
           <span className="hidden lg:inline rounded-full border border-[#d4a853]/30 bg-[#d4a853]/12 px-2 py-0.5 text-[11px] text-[#d4a853]">
-            2024现行版 · {TOTAL_LAW_ARTICLES} 条
+            民诉法 · 司法解释 · {TOTAL_LAW_ARTICLES} 条
           </span>
         </div>
 
@@ -296,14 +307,20 @@ function Workbench() {
       </aside>
 
       {/* ───── 中栏：当前条文 ───── */}
-      <section ref={centerScrollRef} className="overflow-y-auto bg-[#0f1419]">
-        <div className="mx-auto max-w-3xl px-8 py-8">
-          <Breadcrumb chapter={chapter} />
-          <ArticleTitle current={current} article={article} />
-          <ArticleContent article={article} />
-          <ArticleBottomNav
-            current={current} prev={prev} next={next} goTo={goTo}
-          />
+      <section className="flex flex-col bg-[#0f1419] overflow-hidden">
+        <div ref={centerScrollRef} className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-3xl px-8 py-8 pb-4">
+            <Breadcrumb chapter={chapter} />
+            <ArticleTitle current={current} article={article} />
+            <ArticleContent article={article} />
+          </div>
+        </div>
+        <div className="shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] px-8 py-3">
+          <div className="mx-auto max-w-3xl">
+            <ArticleBottomNav
+              current={current} prev={prev} next={next} goTo={goTo}
+            />
+          </div>
         </div>
       </section>
 

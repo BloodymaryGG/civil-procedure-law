@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, BookOpen, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, Hash, ListTree, Lightbulb, Scale as GavelIcon } from "lucide-react";
+import { Search, BookOpen, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb, Scale as GavelIcon } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
 import type { InterpretationArticle, KnowledgeItem, CaseItem, RelateResult } from "@/data/types";

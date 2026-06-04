@@ -33,3 +33,4 @@ dist-static
 *.njsproj
 *.sln
 *.sw?
+deploy.yml

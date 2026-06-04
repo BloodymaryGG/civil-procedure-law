@@ -189,6 +189,18 @@
   .article-nav > :first-child { justify-self: start; }
   .article-nav > :nth-child(2) { justify-self: center; }
   .article-nav > :last-child { justify-self: end; }
+  /* 刘海屏安全区域 */
+  .safe-area-top { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-area-left { padding-left: env(safe-area-inset-left, 0px); }
+  .safe-area-right { padding-right: env(safe-area-inset-right, 0px); }
+
+  /* iOS 聚焦时不缩放 */
+  input, textarea, select { font-size: 16px; }
+  @supports (-webkit-touch-callout: none) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+
   mark.search-hit {
     background-color: var(--color-highlight);
     color: var(--color-ink);

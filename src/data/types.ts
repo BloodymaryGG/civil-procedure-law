@@ -26,3 +26,50 @@ export type InterpretationArticle = {
   paragraphs: string[];
   relatedLawArticles: number[];
 };
+
+/* ─────── 知识点系统 ─────── */
+export interface KnowledgeItem {
+  id: string;
+  title: string;
+  scope: string;
+  articleIds: number[];
+  points: string[];
+  memory: string;
+  exam?: string;
+  relatedCaseIds?: string[];
+}
+
+/* ─────── 案例系统 ─────── */
+export interface CaseArticleLink {
+  articleId: number;
+  label: string;
+}
+
+export type CaseType = "指导案例" | "典型案例" | "公报案例" | "教学示例";
+
+export interface CaseItem {
+  id: string;
+  title: string;
+  court: string;
+  year: string;
+  type: CaseType;
+  summary: string;
+  focus: string;
+  articleIds: number[];
+  knowledgeIds: string[];
+  facts: string;
+  dispute: string;
+  procedure: string[];
+  ruling: string;
+  lessons: string[];
+  articleLinks: CaseArticleLink[];
+}
+
+/* ─────── 关联引擎 ─────── */
+export type RelateMode = "exact" | "chapter" | "keyword" | "generated";
+
+export interface RelateResult<T> {
+  items: T[];
+  mode: RelateMode;
+  hint: string;
+}

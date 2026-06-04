@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, BookOpen, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb, Scale as GavelIcon } from "lucide-react";
+import { Search, BookOpen, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, Hash, ListTree, Lightbulb, Scale as GavelIcon } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
 import type { InterpretationArticle, KnowledgeItem, CaseItem, RelateResult } from "@/data/types";
@@ -668,10 +668,7 @@ function ArticleBottomNav({ current, prev, next, goTo }: { current: number; prev
         </button>
       }
       center={
-        <Link to="/law/$articleNumber" params={{ articleNumber: String(current) }}
-          className="text-xs text-[#94a3b8] hover:text-[#d4a853] inline-flex items-center gap-1">
-          独立页 <ExternalLink className="h-3 w-3" />
-        </Link>
+        <span className="text-xs text-[#94a3b8]">第 {current} 条 / {TOTAL_LAW_ARTICLES}</span>
       }
       next={
         <button disabled={!next} onClick={() => next && goTo(next)}

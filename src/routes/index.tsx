@@ -83,23 +83,12 @@ function Workbench() {
       const a = articleMap.get(n);
       return a ? [a] : [];
     }
-    // 精确搜索：独立词匹配优先
-    const isWordMatch = (text: string) => {
-      const compounds = "法定被原被上受申委代诉请应的负请举";
-      const idx = text.indexOf(q);
-      if (idx < 0) return false;
-      const before = text[idx - 1] || "";
-      const after = text[idx + q.length] || "";
-      return !compounds.includes(before) && !compounds.includes(after);
-    };
+    // 全文搜索（包含所有匹配）：标题匹配优先
     return lawArticles
-      .filter((a) => {
-        if (a.title?.includes(q) && isWordMatch(a.title)) return true;
-        return a.paragraphs.some((p) => isWordMatch(p));
-      })
+      .filter((a) => a.title?.includes(q) || a.paragraphs.some((p) => p.includes(q)))
       .sort((a, b) => {
-        const aTitle = a.title?.includes(q) && isWordMatch(a.title) ? 1 : 0;
-        const bTitle = b.title?.includes(q) && isWordMatch(b.title) ? 1 : 0;
+        const aTitle = a.title?.includes(q) ? 1 : 0;
+        const bTitle = b.title?.includes(q) ? 1 : 0;
         return bTitle - aTitle;
       })
       .slice(0, 30);

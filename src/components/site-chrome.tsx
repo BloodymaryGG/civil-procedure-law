@@ -1,4 +1,3 @@
-import { Link, useRouterState } from "@tanstack/react-router";
 import { Scale, BookOpen, FileSearch, Library } from "lucide-react";
 import { paragraphClassName } from "@/lib/article-text";
 import { cn } from "@/lib/utils";
@@ -11,12 +10,17 @@ const navItems = [
   { to: "/search", label: "精确检索", icon: FileSearch },
 ] as const;
 
+function isActive(itemTo: string, currentPath: string): boolean {
+  if (itemTo === "/") return currentPath === "/" || currentPath === "";
+  return currentPath.startsWith(itemTo);
+}
+
 export function SiteHeader() {
-  const path = useRouterState({ select: (s) => s.location.pathname });
+  const hash = window.location.hash.replace("#", "") || "/";
   return (
     <header className="sticky top-0 z-40 border-b border-gold/30 bg-primary/95 text-primary-foreground shadow-elegant backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4">
-        <Link to="/" className="flex items-center gap-3 group">
+        <a href="#/" className="flex items-center gap-3 group">
           <div className="grid h-10 w-10 place-items-center rounded-sm bg-gradient-to-br from-gold to-gold/70 text-gold-foreground shadow-md transition-transform group-hover:scale-105">
             <Scale className="h-5 w-5" />
           </div>
@@ -24,16 +28,16 @@ export function SiteHeader() {
             <div className="font-serif text-base font-semibold tracking-wider">民事诉讼法典</div>
             <div className="text-[11px] tracking-wide text-primary-foreground/70">查询与释义 · 2024</div>
           </div>
-        </Link>
+        </a>
 
         <nav className="ml-auto flex items-center gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = item.to === "/" ? path === "/" : path.startsWith(item.to);
+            const active = isActive(item.to, hash);
             return (
-              <Link
+              <a
                 key={item.to}
-                to={item.to}
+                href={`#${item.to}`}
                 className={`relative flex items-center gap-1.5 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-white/10 ${
                   active ? "text-gold" : "text-primary-foreground/85"
                 }`}
@@ -43,7 +47,7 @@ export function SiteHeader() {
                 {active && (
                   <span className="absolute inset-x-3 -bottom-px h-[2px] bg-gold" />
                 )}
-              </Link>
+              </a>
             );
           })}
         </nav>

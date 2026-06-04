@@ -1,19 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { lawChapters, lawArticles, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { useMemo, useState } from "react";
 
-export const Route = createFileRoute("/law/")({
-  head: () => ({
-    meta: [
-      { title: `民事诉讼法全文 · 现行有效（2024）· 共${TOTAL_LAW_ARTICLES}条` },
-      { name: "description", content: `按编章浏览中华人民共和国民事诉讼法全部 ${TOTAL_LAW_ARTICLES} 条条文。` },
-    ],
-  }),
-  component: LawIndex,
-});
-
-function LawIndex() {
+export function LawIndex() {
   const [filter, setFilter] = useState("");
   const grouped = useMemo(() => {
     const byPart = new Map<string, typeof lawChapters>();
@@ -47,13 +36,12 @@ function LawIndex() {
             className="w-56 rounded-sm border border-input bg-card px-3 py-2 text-sm outline-none focus:border-gold"
           />
           {f && (
-            <Link
-              to="/law/$articleNumber"
-              params={{ articleNumber: f }}
+            <a
+              href={`#/law/${f}`}
               className="text-sm text-accent hover:text-gold"
             >
               → 跳转至第 {f} 条
-            </Link>
+            </a>
           )}
         </div>
 
@@ -70,10 +58,9 @@ function LawIndex() {
                       {Array.from({ length: c.articleEnd - c.articleStart + 1 }, (_, i) => c.articleStart + i).map((n) => {
                         const has = articleSet.has(n);
                         return (
-                          <Link
+                          <a
                             key={n}
-                            to="/law/$articleNumber"
-                            params={{ articleNumber: String(n) }}
+                            href={`#/law/${n}`}
                             className={`inline-flex h-7 min-w-[2.25rem] items-center justify-center rounded-sm border px-1.5 text-xs transition-colors ${
                               has
                                 ? "border-gold/40 bg-gold-soft/50 text-foreground hover:bg-gold hover:text-gold-foreground"
@@ -82,7 +69,7 @@ function LawIndex() {
                             title={`第${n}条`}
                           >
                             {n}
-                          </Link>
+                          </a>
                         );
                       })}
                     </div>

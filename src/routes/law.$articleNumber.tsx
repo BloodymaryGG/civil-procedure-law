@@ -1,36 +1,25 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Link2, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { SiteHeader, SiteFooter, ArticleBody, ArticleNav } from "@/components/site-chrome";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
-import { ChevronLeft, ChevronRight, BookOpen, Link2 } from "lucide-react";
 
-export const Route = createFileRoute("/law/$articleNumber")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `民事诉讼法 第${params.articleNumber}条 · 全文与司法解释` },
-      { name: "description", content: `中华人民共和国民事诉讼法第${params.articleNumber}条条文原文及配套司法解释。` },
-    ],
-  }),
-  component: ArticleDetail,
-  notFoundComponent: () => (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="flex-1 grid place-items-center px-4">
-        <div className="text-center">
-          <div className="font-serif text-5xl text-muted-foreground">404</div>
-          <p className="mt-2 text-muted-foreground">未找到该条文</p>
-          <Link to="/law" className="mt-4 inline-block text-accent hover:text-gold">← 返回法条目录</Link>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
-  ),
-});
-
-function ArticleDetail() {
-  const { articleNumber } = Route.useParams();
-  const num = parseInt(articleNumber, 10);
-  if (isNaN(num) || num < 1 || num > TOTAL_LAW_ARTICLES) throw notFound();
+export function ArticleDetail({ articleNumber: articleNumberProp }: { articleNumber: string }) {
+  const num = parseInt(articleNumberProp, 10);
+  if (isNaN(num) || num < 1 || num > TOTAL_LAW_ARTICLES) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1 grid place-items-center px-4">
+          <div className="text-center">
+            <div className="font-serif text-5xl text-muted-foreground">404</div>
+            <p className="mt-2 text-muted-foreground">未找到该条文</p>
+            <a href="#/law" className="mt-4 inline-block text-accent hover:text-gold">← 返回法条目录</a>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   const article = lawArticles.find((a) => a.number === num);
   const chapter = lawChapters.find((c) => num >= c.articleStart && num <= c.articleEnd);
@@ -46,7 +35,7 @@ function ArticleDetail() {
       <main className="flex-1 mx-auto w-full max-w-4xl px-4 py-10">
         {/* Breadcrumb */}
         <nav className="text-xs text-muted-foreground">
-          <Link to="/law" className="hover:text-accent">民事诉讼法</Link>
+          <a href="#/law" className="hover:text-accent">民事诉讼法</a>
           {chapter && (
             <>
               <span className="mx-2">/</span>
@@ -89,19 +78,19 @@ function ArticleDetail() {
             <ArticleNav
               prev={
                 prevNum ? (
-                  <Link to="/law/$articleNumber" params={{ articleNumber: String(prevNum) }} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
+                  <a href={`#/law/${prevNum}`} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
                     <ChevronLeft className="h-4 w-4" /> 第 {prevNum} 条
-                  </Link>
+                  </a>
                 ) : null
               }
               center={
-                <Link to="/law" className="text-xs text-muted-foreground hover:text-accent">目录</Link>
+                <a href="#/law" className="text-xs text-muted-foreground hover:text-accent">目录</a>
               }
               next={
                 nextNum ? (
-                  <Link to="/law/$articleNumber" params={{ articleNumber: String(nextNum) }} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
+                  <a href={`#/law/${nextNum}`} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
                     第 {nextNum} 条 <ChevronRight className="h-4 w-4" />
-                  </Link>
+                  </a>
                 ) : null
               }
             />
@@ -122,9 +111,8 @@ function ArticleDetail() {
             <ul className="mt-4 space-y-3">
               {relatedInterps.map((i) => (
                 <li key={i.id}>
-                  <Link
-                    to="/interpretations/$id"
-                    params={{ id: i.id }}
+                  <a
+                    href={`#/interpretations/${i.id}`}
                     className="block rounded-md border border-border bg-card p-4 transition-all hover:border-gold hover:shadow-card"
                   >
                     <div className="flex items-center justify-between">
@@ -132,7 +120,7 @@ function ArticleDetail() {
                       {i.chapter && <div className="text-xs text-muted-foreground">{i.chapter}</div>}
                     </div>
                     <p className="mt-2 article-text text-sm text-foreground line-clamp-3">{i.paragraphs[0]}</p>
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

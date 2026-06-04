@@ -1,34 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
+import { useState, useEffect, useMemo } from "react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { searchAll, highlight } from "@/lib/search";
-import { useMemo, useState, useEffect } from "react";
 import { Search, BookOpen, Library } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 
-const searchSchema = z.object({
-  q: fallback(z.string(), "").default(""),
-});
-
-export const Route = createFileRoute("/search")({
-  validateSearch: zodValidator(searchSchema),
-  head: () => ({
-    meta: [
-      { title: "精确检索 · 民事诉讼法与司法解释" },
-      { name: "description", content: "在民事诉讼法全文及配套司法解释中精确检索关键词或条号。" },
-    ],
-  }),
-  component: SearchPage,
-});
-
-function SearchPage() {
-  const { q: initialQ } = Route.useSearch();
-  const navigate = useNavigate();
-  const [q, setQ] = useState(initialQ);
+export function SearchPage() {
+  const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "law" | "interpretation">("all");
-
-  useEffect(() => { setQ(initialQ); }, [initialQ]);
 
   const hits = useMemo(() => searchAll(q), [q]);
   const filtered = filter === "all" ? hits : hits.filter((h) => h.type === filter);
@@ -46,7 +23,7 @@ function SearchPage() {
         </p>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); navigate({ to: "/search", search: { q } }); }}
+          onSubmit={(e) => { e.preventDefault(); /* q is already in state */ }}
           className="mt-6 flex items-center gap-2 rounded-md border border-input bg-card px-3 py-2 shadow-card"
         >
           <Search className="h-5 w-5 text-muted-foreground" />
@@ -83,9 +60,8 @@ function SearchPage() {
                 {filtered.map((h, idx) => (
                   <li key={idx}>
                     {h.type === "law" ? (
-                      <Link
-                        to="/law/$articleNumber"
-                        params={{ articleNumber: String(h.article.number) }}
+                      <a
+                        href={`#/law/${h.article.number}`}
                         className="block rounded-md border border-border bg-card p-5 transition-all hover:border-gold hover:shadow-card"
                       >
                         <div className="flex items-center gap-2 text-xs">
@@ -94,11 +70,10 @@ function SearchPage() {
                           <span className="text-muted-foreground">· {h.article.chapterTitle}</span>
                         </div>
                         <p className="mt-2 article-text text-sm" dangerouslySetInnerHTML={highlight(h.snippet, q)} />
-                      </Link>
+                      </a>
                     ) : (
-                      <Link
-                        to="/interpretations/$id"
-                        params={{ id: h.article.id }}
+                      <a
+                        href={`#/interpretations/${h.article.id}`}
                         className="block rounded-md border border-border bg-card p-5 transition-all hover:border-gold hover:shadow-card"
                       >
                         <div className="flex items-center gap-2 text-xs">
@@ -109,7 +84,7 @@ function SearchPage() {
                           )}
                         </div>
                         <p className="mt-2 article-text text-sm" dangerouslySetInnerHTML={highlight(h.snippet, q)} />
-                      </Link>
+                      </a>
                     )}
                   </li>
                 ))}

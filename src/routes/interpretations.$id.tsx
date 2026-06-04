@@ -1,28 +1,20 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ChevronLeft, BookOpen } from "lucide-react";
 import { SiteHeader, SiteFooter, ArticleBody, ArticleNav } from "@/components/site-chrome";
 import { interpretations } from "@/data/interpretations";
-import { ChevronLeft, BookOpen } from "lucide-react";
 
-export const Route = createFileRoute("/interpretations/$id")({
-  head: ({ params }) => ({
-    meta: [{ title: `司法解释详情 · ${params.id}` }],
-  }),
-  component: InterpretationDetail,
-  notFoundComponent: () => (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="flex-1 grid place-items-center">
-        <Link to="/interpretations" className="text-accent">← 返回司法解释列表</Link>
-      </main>
-      <SiteFooter />
-    </div>
-  ),
-});
-
-function InterpretationDetail() {
-  const { id } = Route.useParams();
+export function InterpretationDetail({ id }: { id: string }) {
   const item = interpretations.find((i) => i.id === id);
-  if (!item) throw notFound();
+  if (!item) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1 grid place-items-center">
+          <a href="#/interpretations" className="text-accent">← 返回司法解释列表</a>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   // 同章节前后导航
   const sameDoc = interpretations.filter((i) => i.doc === item.doc);
@@ -34,9 +26,9 @@ function InterpretationDetail() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1 mx-auto w-full max-w-4xl px-4 py-10">
-        <Link to="/interpretations" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-accent">
+        <a href="#/interpretations" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-accent">
           <ChevronLeft className="h-3.5 w-3.5" /> 返回司法解释列表
-        </Link>
+        </a>
 
         <article className="mt-4 overflow-hidden rounded-md border border-border bg-card shadow-card">
           <header className="relative border-b border-border bg-parchment px-8 py-7">
@@ -56,19 +48,19 @@ function InterpretationDetail() {
             <ArticleNav
               prev={
                 prev ? (
-                  <Link to="/interpretations/$id" params={{ id: prev.id }} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
+                  <a href={`#/interpretations/${prev.id}`} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
                     <ChevronLeft className="h-4 w-4" /> 第 {prev.number} 条
-                  </Link>
+                  </a>
                 ) : null
               }
               center={
-                <Link to="/interpretations" className="text-xs text-muted-foreground hover:text-accent">目录</Link>
+                <a href="#/interpretations" className="text-xs text-muted-foreground hover:text-accent">目录</a>
               }
               next={
                 next ? (
-                  <Link to="/interpretations/$id" params={{ id: next.id }} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
+                  <a href={`#/interpretations/${next.id}`} className="flex items-center gap-1 text-muted-foreground hover:text-accent">
                     第 {next.number} 条 →
-                  </Link>
+                  </a>
                 ) : null
               }
             />
@@ -83,13 +75,12 @@ function InterpretationDetail() {
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {item.relatedLawArticles.map((n) => (
                 <li key={n}>
-                  <Link
-                    to="/law/$articleNumber"
-                    params={{ articleNumber: String(n) }}
+                  <a
+                    href={`#/law/${n}`}
                     className="block rounded-md border border-border bg-card p-3 text-sm hover:border-gold hover:text-accent"
                   >
                     → 民事诉讼法 第 {n} 条
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

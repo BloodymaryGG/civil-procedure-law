@@ -1,6 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Library, Scale, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb } from "lucide-react";
+import { Search, Library, Scale, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Hash, ListTree, Lightbulb, BookOpen } from "lucide-react";
 import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-articles";
 import { interpretations } from "@/data/interpretations";
 import type { InterpretationArticle, KnowledgeItem, RelateResult } from "@/data/types";
@@ -9,18 +8,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { knowledgeData as knowledgeList } from "@/data/knowledge";
 import { getRelatedKnowledge } from "@/lib/relate";
 import KnowledgeCard from "@/components/knowledge-card";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "民事诉讼法及司法解释 · 2024现行版" },
-      { name: "description", content: "民事诉讼法及司法解释查询系统：法条全文、司法解释联动、知识点学习。" },
-    ],
-  }),
-  component: Workbench,
-});
-
-const articleMap = new Map(lawArticles.map((a) => [a.number, a]));
 
 /* ─────────────────────── 中文条号解析 ─────────────────────── */
 const CN: Record<string, number> = { 零:0, 一:1, 二:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9, 十:10, 百:100 };
@@ -34,7 +21,7 @@ function cnToNum(s: string) {
   }
   return r + cur;
 }
-function parseArticleQuery(raw: string): number | null {
+export function parseArticleQuery(raw: string): number | null {
   const s = raw.trim();
   if (!s) return null;
   const d = parseInt(s.replace(/[^\d]/g, ""), 10);
@@ -44,8 +31,10 @@ function parseArticleQuery(raw: string): number | null {
   return null;
 }
 
+const articleMap = new Map(lawArticles.map((a) => [a.number, a]));
+
 /* ─────────────────────── Workbench ─────────────────────── */
-function Workbench() {
+export function Workbench() {
   const [current, setCurrent] = useState(1);
   const [search, setSearch] = useState("");
   const [sidebarTab, setSidebarTab] = useState<"toc" | "jump">("toc");
@@ -197,9 +186,9 @@ function Workbench() {
         </div>
 
         <div className="flex min-w-0 items-center justify-end gap-3 text-xs">
-          <Link to="/interpretations" className="inline-flex items-center gap-1 rounded-md border border-[#3a4f6b] bg-[#0f1419]/60 px-2.5 py-1.5 text-[#e8edf4] hover:border-[#d4a853] hover:text-[#d4a853]">
+          <a href="#/interpretations" className="inline-flex items-center gap-1 rounded-md border border-[#3a4f6b] bg-[#0f1419]/60 px-2.5 py-1.5 text-[#e8edf4] hover:border-[#d4a853] hover:text-[#d4a853]">
             <Library className="h-3.5 w-3.5" /> 司法解释库 <ExternalLink className="h-3 w-3 opacity-60" />
-          </Link>
+          </a>
           <div className="hidden xl:flex flex-col items-end leading-tight text-[#94a3b8]">
             <span className="inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-[#d4a853]" /> 制作人　梨花开　SQH</span>
             <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-[#d4a853]" /> 仅供学习研究使用</span>
@@ -403,10 +392,10 @@ function MobileLayout({
           className="rounded-md border border-[#3a4f6b] px-2.5 py-1.5 text-[11px] text-[#e8edf4]">
           <Search className="h-3.5 w-3.5" />
         </button>
-        <Link to="/interpretations"
+        <a href="#/interpretations"
           className="rounded-md border border-[#3a4f6b] px-2.5 py-1.5 text-[11px] text-[#94a3b8]">
           <Library className="h-3.5 w-3.5" />
-        </Link>
+        </a>
       </header>
 
       {/* Mobile search bar (expandable) */}
@@ -642,7 +631,7 @@ function TabBtn({ active, onClick, icon, children }: { active: boolean; onClick:
 
 function InterpCard({ item }: { item: InterpretationArticle }) {
   return (
-    <Link to="/interpretations/$id" params={{ id: item.id }}
+    <a href={`#/interpretations/${item.id}`}
       className="block rounded-md border border-[#3a4f6b] bg-[#243044] p-3 transition-all hover:border-[#d4a853] hover:shadow-lg">
       <div className="flex items-center gap-2 text-[11px]">
         <span className="rounded bg-[#d4a853]/15 px-1.5 py-0.5 text-[#d4a853]">{item.doc}</span>
@@ -653,7 +642,7 @@ function InterpCard({ item }: { item: InterpretationArticle }) {
       <div className="mt-2 flex items-center gap-1 text-[10px] text-[#94a3b8]">
         查看全文 <ExternalLink className="h-2.5 w-2.5" />
       </div>
-    </Link>
+    </a>
   );
 }
 

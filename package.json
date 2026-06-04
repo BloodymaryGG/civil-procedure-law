@@ -1,18 +1,14 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "civil-procedure-law",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "build:static": "VITE_BASE_PATH=/civil-procedure-law/ vite build --config vite.static.config.ts",
-    "preview:static": "vite preview --config vite.static.config.ts --base /civil-procedure-law/",
-    "preview": "vite preview",
+    "build": "VITE_BASE_PATH=/civil-procedure-law/ vite build --config vite.static.config.ts",
+    "preview": "vite preview --config vite.static.config.ts --base /civil-procedure-law/",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "gen:icons": "npx tsx scripts/gen-icons.py"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

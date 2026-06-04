@@ -1,20 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { interpretations, interpretationDocs } from "@/data/interpretations";
 import { useMemo, useState } from "react";
 import { Search, BookOpen, Library } from "lucide-react";
 
-export const Route = createFileRoute("/interpretations/")({
-  head: () => ({
-    meta: [
-      { title: "司法解释查询 · 民事诉讼法配套" },
-      { name: "description", content: "民事诉讼法司法解释、证据规定等现行司法解释独立查询系统。" },
-    ],
-  }),
-  component: InterpretationsIndex,
-});
-
-function InterpretationsIndex() {
+export function InterpretationsIndex() {
   const [q, setQ] = useState("");
   const [doc, setDoc] = useState<string>("全部");
 
@@ -102,9 +91,8 @@ function InterpretationsIndex() {
           <ul className="mt-6 space-y-3">
             {filtered.slice(0, 200).map((i) => (
               <li key={i.id}>
-                <Link
-                  to="/interpretations/$id"
-                  params={{ id: i.id }}
+                <a
+                  href={`#/interpretations/${i.id}`}
                   className="block rounded-md border border-border bg-card p-5 transition-all hover:border-gold hover:shadow-card"
                 >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -119,7 +107,7 @@ function InterpretationsIndex() {
                     )}
                   </div>
                   <p className="mt-2 article-text text-sm text-foreground line-clamp-3">{i.paragraphs[0]}</p>
-                </Link>
+                </a>
               </li>
             ))}
             {filtered.length > 200 && (

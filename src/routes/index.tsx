@@ -171,7 +171,55 @@ export function Workbench() {
                 {mode === "law" ? `民事诉讼法 第 ${current} 条` : `民诉法解释 第 ${current} 条`}
               </h3>
               {currentArticle ? (
-                <ArticleBody paragraphs={(currentArticle as any).paragraphs} variant="dark" />
+                <>
+                  <ArticleBody paragraphs={(currentArticle as any).paragraphs} variant="dark" />
+                  {/* 关联信息 */}
+                  {mode === "law" ? (
+                    relatedInterps.length > 0 && (
+                      <div className="mt-6 border-2 border-dashed border-[#d4a853]/30 rounded-lg p-4 bg-[#1a2332]/60">
+                        <div className="text-[11px] font-semibold text-[#d4a853] mb-3 flex items-center gap-1.5">
+                          <span>⚖️</span> 关联司法解释
+                        </div>
+                        <div className="space-y-2">
+                          {relatedInterps.slice(0, 5).map((item) => (
+                            <button key={item.id}
+                              onClick={() => { setMode("interpretation"); goTo(item.number); }}
+                              className="block w-full text-left rounded border border-[#3a4f6b]/70 bg-[#243044] p-2.5 transition-all active:border-[#d4a853]">
+                              <div className="flex items-center gap-1.5 text-[10px]">
+                                <span className="text-[#d4a853]">解释</span>
+                                <span className="font-mono text-[#3b82f6]">第{item.number}条</span>
+                                {item.chapter && <span className="text-[#94a3b8] truncate">· {item.chapter}</span>}
+                              </div>
+                              <p className="mt-1 text-[11px] leading-relaxed text-[#e8edf4]/70 line-clamp-2">{item.paragraphs[0]}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    relatedLaws.length > 0 && (
+                      <div className="mt-6 border-2 border-dashed border-[#3b82f6]/30 rounded-lg p-4 bg-[#1a2332]/60">
+                        <div className="text-[11px] font-semibold text-[#3b82f6] mb-3 flex items-center gap-1.5">
+                          <span>📜</span> 关联法条
+                        </div>
+                        <div className="space-y-2">
+                          {relatedLaws.slice(0, 5).map((a: any) => (
+                            <button key={a.number}
+                              onClick={() => { setMode("law"); goTo(a.number); }}
+                              className="block w-full text-left rounded border border-[#3a4f6b]/70 bg-[#243044] p-2.5 transition-all active:border-[#3b82f6]">
+                              <div className="flex items-center gap-1.5 text-[10px]">
+                                <span className="text-[#3b82f6]">法条</span>
+                                <span className="font-mono text-[#3b82f6]">第{a.number}条</span>
+                                {a.title && <span className="text-[#94a3b8] truncate">· {a.title}</span>}
+                              </div>
+                              <p className="mt-1 text-[11px] leading-relaxed text-[#e8edf4]/70 line-clamp-2">{a.paragraphs[0]}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </>
               ) : (
                 <div className="rounded border border-dashed border-[#3a4f6b] p-6 text-center text-[#94a3b8] text-xs">暂无内容</div>
               )}

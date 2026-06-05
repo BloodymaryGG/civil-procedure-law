@@ -121,11 +121,11 @@ export function Workbench() {
   const prev = current > 1 ? current - 1 : null;
   const next = current < totalArticles ? current + 1 : null;
 
-  /* ── Mobile ── */
+  /* ── Mobile（底部导航栏，参考刑诉项目） ── */
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#0f1419] text-[#e8edf4]">
-        <header className="flex items-center gap-2 border-b border-[#3a4f6b] bg-[#1a2332] px-3 py-2">
+        <header className="flex items-center gap-2 border-b border-[#3a4f6b] bg-[#1a2332] px-3 py-2 shrink-0">
           <button onClick={toggleMode} className="rounded border border-[#d4a853]/40 px-2 py-1 text-[11px] text-[#d4a853] whitespace-nowrap">
             {mode === "law" ? "司法解释" : "法条"}
           </button>
@@ -151,17 +151,10 @@ export function Workbench() {
           </div>
         </header>
 
-        <div className="flex border-b border-[#3a4f6b] bg-[#1a2332]">
-          {[["article", "条文"], ["side", "目录"], ["panel", mode === "law" ? "关联解释" : "关联法条"]].map(([key, label]) => (
-            <button key={key} onClick={() => setMobileTab(key as any)}
-              className={`flex-1 py-2 text-xs font-medium ${mobileTab === key ? "text-[#3b82f6] border-b-2 border-[#3b82f6]" : "text-[#94a3b8]"}`}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {mobileTab === "article" && (
+        {/* 内容区域：三个面板轮流显示 */}
+        <div className="flex-1 overflow-hidden relative">
+          {/* 法条面板 */}
+          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "article" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
             <div className="px-4 py-4">
               <div className="flex items-center gap-2 text-xs text-[#94a3b8] mb-2">
                 {chapter && <span>{(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
@@ -186,9 +179,10 @@ export function Workbench() {
                 </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {mobileTab === "side" && (
+          {/* 目录面板 */}
+          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "side" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
             <div className="p-3">
               {(chapters as any[]).map((c: any) => {
                 const isActiveChapter = chapter?.id === c.id;
@@ -212,9 +206,10 @@ export function Workbench() {
                 );
               })}
             </div>
-          )}
+          </div>
 
-          {mobileTab === "panel" && (
+          {/* 关联面板 */}
+          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "panel" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
             <div className="p-3 space-y-2">
               {(mode === "law" ? relatedInterps : relatedLaws).length === 0 ? (
                 <div className="text-xs text-[#94a3b8] text-center py-6">无关联内容</div>
@@ -229,8 +224,28 @@ export function Workbench() {
                 ))
               )}
             </div>
-          )}
+          </div>
         </div>
+
+        {/* 底部导航栏 */}
+        <nav className="flex shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] px-2 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] gap-1">
+          {[
+            { key: "article", icon: "📖", label: mode === "law" ? "法条" : "司法解释" },
+            { key: "side", icon: "📑", label: "目录" },
+            { key: "panel", icon: "🔗", label: mode === "law" ? "关联解释" : "关联法条" },
+          ].map(({ key, icon, label }) => (
+            <button key={key}
+              onClick={() => setMobileTab(key as any)}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors ${
+                mobileTab === key
+                  ? "text-[#d4a853] bg-[#d4a853]/10"
+                  : "text-[#94a3b8]"
+              }`}>
+              <span className="text-base leading-none">{icon}</span>
+              <span className="text-[10px] font-semibold">{label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
     );
   }

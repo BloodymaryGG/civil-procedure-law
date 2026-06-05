@@ -70,6 +70,9 @@
 [data-theme] .article-body-dark .article-text { color: var(--theme-text) !important; }
 [data-theme] .article-section-title { color: var(--theme-gold) !important; }
 [data-theme] .article-chapter-badge { color: var(--theme-muted) !important; }
+[data-theme] .related-card { background: color-mix(in srgb, var(--theme-panel) 60%, transparent) !important; border-color: color-mix(in srgb, var(--theme-gold) 25%, transparent) !important; }
+[data-theme] .related-card-item { background: var(--theme-card) !important; border-color: var(--theme-border) !important; color: var(--theme-text) !important; }
+[data-theme] .related-card-header { color: var(--theme-gold) !important; }
 [data-theme] .hover\:border-\[\#d4a853\]:hover { border-color: var(--theme-gold) !important; }
 [data-theme] .hover\:border-\[\#3b82f6\]:hover { border-color: var(--theme-accent) !important; }
 [data-theme] .bg-\[\#d4a853\]\/15 { background-color: color-mix(in srgb, var(--theme-gold) 15%, transparent) !important; }

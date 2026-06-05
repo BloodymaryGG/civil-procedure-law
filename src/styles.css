@@ -178,6 +178,65 @@
     color: oklch(0.93 0.015 260);
   }
 
+  /* 正文标题层级——更清晰的视觉层次 */
+  .article-section-title {
+    font-family: var(--font-serif-cn);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-gold, #d4a853);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.01em;
+  }
+
+  .article-chapter-badge {
+    font-size: 0.78rem;
+    color: oklch(0.65 0.02 260);
+    margin-bottom: 0.25rem;
+  }
+
+  .article-number-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: oklch(0.7 0.03 260);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid oklch(0.3 0 260);
+  }
+
+  /* 关联卡片虚线框 */
+  .related-card {
+    border: 2px dashed rgba(212, 168, 83, 0.25);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: rgba(26, 35, 50, 0.5);
+    transition: border-color 0.15s;
+  }
+  .related-card:active {
+    border-color: rgba(212, 168, 83, 0.6);
+  }
+  .related-card-header {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-gold, #d4a853);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .related-card-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px solid oklch(0.3 0 260);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.7rem;
+    background: oklch(0.18 0 260);
+    transition: border-color 0.15s;
+  }
+  .related-card-item:active {
+    border-color: var(--color-gold, #d4a853);
+  }
+
   /* 三栏导航：左中右三列等宽对齐 */
   .article-nav {
     display: grid;

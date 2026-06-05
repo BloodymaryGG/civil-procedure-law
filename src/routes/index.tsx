@@ -164,11 +164,11 @@ export function Workbench() {
           {/* 法条面板 */}
           <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "article" ? "z-10" : "z-0 pointer-events-none opacity-0"}`}>
             <div className="px-4 pb-4">
-              <div className="flex items-center gap-2 text-xs text-[#94a3b8] mb-2">
+              <div className="article-chapter-badge">
                 {chapter && <span>{(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
               </div>
-              <h3 className="text-sm text-[#d4a853]">
-                {mode === "law" ? `民事诉讼法 第 ${current} 条` : `民诉法解释 第 ${current} 条`}
+              <h3 className="article-section-title">
+                {mode === "law" ? `第 ${current} 条` : `民诉法解释 第 ${current} 条`}
               </h3>
               {currentArticle ? (
                 <>
@@ -176,15 +176,13 @@ export function Workbench() {
                   {/* 关联信息 */}
                   {mode === "law" ? (
                     relatedInterps.length > 0 && (
-                      <div className="mt-6 border-2 border-dashed border-[#d4a853]/30 rounded-lg p-4 bg-[#1a2332]/60">
-                        <div className="text-[11px] font-semibold text-[#d4a853] mb-3 flex items-center gap-1.5">
-                          <span>⚖️</span> 关联司法解释
-                        </div>
+                      <div className="related-card mt-6">
+                        <div className="related-card-header">⚖️ 关联司法解释</div>
                         <div className="space-y-2">
-                          {relatedInterps.slice(0, 5).map((item) => (
+                          {relatedInterps.map((item) => (
                             <button key={item.id}
                               onClick={() => { setMode("interpretation"); goTo(item.number); }}
-                              className="block w-full text-left rounded border border-[#3a4f6b]/70 bg-[#243044] p-2.5 transition-all active:border-[#d4a853]">
+                              className="related-card-item">
                               <div className="flex items-center gap-1.5 text-[10px]">
                                 <span className="text-[#d4a853]">解释</span>
                                 <span className="font-mono text-[#3b82f6]">第{item.number}条</span>
@@ -198,15 +196,13 @@ export function Workbench() {
                     )
                   ) : (
                     relatedLaws.length > 0 && (
-                      <div className="mt-6 border-2 border-dashed border-[#3b82f6]/30 rounded-lg p-4 bg-[#1a2332]/60">
-                        <div className="text-[11px] font-semibold text-[#3b82f6] mb-3 flex items-center gap-1.5">
-                          <span>📜</span> 关联法条
-                        </div>
+                      <div className="related-card mt-6" style={{borderColor: 'rgba(59,130,246,0.25)'}}>
+                        <div className="related-card-header" style={{color: '#3b82f6'}}>📜 关联法条</div>
                         <div className="space-y-2">
-                          {relatedLaws.slice(0, 5).map((a: any) => (
+                          {relatedLaws.map((a: any) => (
                             <button key={a.number}
                               onClick={() => { setMode("law"); goTo(a.number); }}
-                              className="block w-full text-left rounded border border-[#3a4f6b]/70 bg-[#243044] p-2.5 transition-all active:border-[#3b82f6]">
+                              className="related-card-item">
                               <div className="flex items-center gap-1.5 text-[10px]">
                                 <span className="text-[#3b82f6]">法条</span>
                                 <span className="font-mono text-[#3b82f6]">第{a.number}条</span>

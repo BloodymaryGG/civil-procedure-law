@@ -17,7 +17,14 @@ export type LawArticle = {
   paragraphs: string[];
 };
 
-export type InterpretationDoc = "民诉法解释" | "证据规定";
+export type InterpretationDoc = "民诉法解释";
+
+export type InterpChapter = {
+  id: string;
+  chapter: string;
+  articleStart: number;
+  articleEnd: number;
+};
 
 export type InterpretationArticle = {
   id: string;

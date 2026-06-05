@@ -1,22 +1,9 @@
-import { Scale, BookOpen, FileSearch, Library } from "lucide-react";
+import { Scale } from "lucide-react";
 import { paragraphClassName } from "@/lib/article-text";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-const navItems = [
-  { to: "/", label: "首页", icon: Scale },
-  { to: "/law", label: "民诉法条", icon: BookOpen },
-  { to: "/interpretations", label: "司法解释", icon: Library },
-  { to: "/search", label: "精确检索", icon: FileSearch },
-] as const;
-
-function isActive(itemTo: string, currentPath: string): boolean {
-  if (itemTo === "/") return currentPath === "/" || currentPath === "";
-  return currentPath.startsWith(itemTo);
-}
-
 export function SiteHeader() {
-  const hash = window.location.hash.replace("#", "") || "/";
   return (
     <header className="sticky top-0 z-40 border-b border-gold/30 bg-primary/95 text-primary-foreground shadow-elegant backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4">
@@ -29,28 +16,6 @@ export function SiteHeader() {
             <div className="text-[11px] tracking-wide text-primary-foreground/70">查询与释义 · 2024</div>
           </div>
         </a>
-
-        <nav className="ml-auto flex items-center gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.to, hash);
-            return (
-              <a
-                key={item.to}
-                href={`#${item.to}`}
-                className={`relative flex items-center gap-1.5 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-white/10 ${
-                  active ? "text-gold" : "text-primary-foreground/85"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
-                {active && (
-                  <span className="absolute inset-x-3 -bottom-px h-[2px] bg-gold" />
-                )}
-              </a>
-            );
-          })}
-        </nav>
       </div>
     </header>
   );
@@ -78,7 +43,6 @@ export function SiteFooter() {
   );
 }
 
-// 段落渲染：法条原文 / 司法解释 多段
 export function ArticleBody({
   paragraphs,
   dangerouslyHtml,
@@ -109,7 +73,6 @@ export function ArticleBody({
   );
 }
 
-/** 上一条 / 目录 / 下一条 三列对齐导航 */
 export function ArticleNav({
   prev,
   center,

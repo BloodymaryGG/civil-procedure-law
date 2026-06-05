@@ -136,8 +136,12 @@ export function Workbench() {
           <div className="flex items-center justify-between mb-1.5">
             <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
               className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4]">📑 目录</button>
-            <button onClick={toggleMode}
-              className="rounded border border-[#d4a853]/40 px-2.5 py-1.5 text-[11px] text-[#d4a853]">{mode === "law" ? "⇄ 司法解释" : "⇄ 法条"}</button>
+            <div className="flex items-center gap-1.5">
+              <button onClick={cycleTheme} title="切换主题"
+                className="grid h-7 w-7 place-items-center rounded border border-[#d4a853]/30 bg-[#d4a853]/10 text-xs text-[#d4a853]">⚖</button>
+              <button onClick={toggleMode}
+                className="rounded border border-[#d4a853]/40 px-2 py-1.5 text-[11px] text-[#d4a853]">{mode === "law" ? "⇄ 司法解释" : "⇄ 法条"}</button>
+            </div>
           </div>
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />

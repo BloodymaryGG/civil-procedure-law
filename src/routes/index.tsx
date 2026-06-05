@@ -126,7 +126,7 @@ export function Workbench() {
     return (
       <div className="h-screen flex flex-col bg-[#0f1419] text-[#e8edf4]">
         {/* 第一行：目录按钮 | 切换按钮 */}
-        <div className="flex items-center justify-between shrink-0 px-3 pt-2 pb-1">
+        <div className="flex items-center justify-between shrink-0 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-1">
           <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
             className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4] hover:border-[#d4a853]">
             📑 目录

@@ -88,7 +88,7 @@ export function Workbench() {
   const searchHits = useMemo((): SearchResult[] => {
     const q = search.trim();
     if (!q) return [];
-    return searchAll(q, 50).map((h) => ({
+    return searchAll(q, 999).map((h) => ({
       type: h.type === "law" ? "law" as const : "interp" as const,
       number: h.article.number,
       title: h.type === "law" ? h.article.title ?? "" : "民诉法解释",

@@ -47,7 +47,7 @@ export function Workbench() {
   const [search, setSearch] = useState("");
 
   const [mounted, setMounted] = useState(false);
-  const [mobileTab, setMobileTab] = useState<"article" | "side" | "panel">("article");
+  const [mobileTab, setMobileTab] = useState<"article" | "side">("article");
   const centerScrollRef = useRef<HTMLDivElement>(null);
   const tocActiveRef = useRef<HTMLButtonElement>(null);
   const isMobile = useIsMobile();
@@ -121,41 +121,49 @@ export function Workbench() {
   const prev = current > 1 ? current - 1 : null;
   const next = current < totalArticles ? current + 1 : null;
 
-  /* ── Mobile（底部导航栏，参考刑诉项目） ── */
+  /* ── Mobile（顶部目录+切换按钮，底部固定翻页） ── */
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#0f1419] text-[#e8edf4]">
-        <header className="flex items-center gap-2 border-b border-[#3a4f6b] bg-[#1a2332] px-3 py-2 shrink-0">
-          <button onClick={toggleMode} className="rounded border border-[#d4a853]/40 px-2 py-1 text-[11px] text-[#d4a853] whitespace-nowrap">
-            {mode === "law" ? "司法解释" : "法条"}
+        {/* 第一行：目录按钮 | 切换按钮 */}
+        <div className="flex items-center justify-between shrink-0 px-3 pt-2 pb-1">
+          <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
+            className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4] hover:border-[#d4a853]">
+            📑 目录
           </button>
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="搜索法条 + 司法解释"
-              className="w-full rounded border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-7 pr-2 text-xs outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6]" />
-            {search && searchHits.length > 0 && (
-              <div className="absolute left-0 right-0 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
-                {searchHits.map((h, idx) => (
-                  <button key={idx}
-                    onClick={() => { if (h.type === "law" && mode !== "law") toggleMode(); if (h.type === "interp" && mode !== "interpretation") toggleMode(); goTo(h.number); setSearch(""); }}
-                    className="block w-full border-b border-[#3a4f6b]/50 px-3 py-2 text-left hover:bg-[#2d3d56]">
-                    <span className={`text-[10px] ${h.type === "law" ? "text-[#3b82f6]" : "text-[#d4a853]"}`}>
-                      {h.type === "law" ? `第${h.number}条` : `解释${h.number}条`}
-                    </span>
-                    <p className="text-xs truncate text-[#e8edf4]/70">{h.snippet}</p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </header>
+          <button onClick={toggleMode}
+            className="rounded border border-[#d4a853]/40 px-2.5 py-1.5 text-[11px] text-[#d4a853]">
+            {mode === "law" ? "⇄ 司法解释" : "⇄ 法条"}
+          </button>
+        </div>
 
-        {/* 内容区域：三个面板轮流显示 */}
+        {/* 搜索框 */}
+        <div className="relative shrink-0 px-3 pb-2">
+          <Search className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="搜索条号或关键词"
+            className="w-full rounded border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-7 pr-2 text-xs outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6]" />
+          {search && searchHits.length > 0 && (
+            <div className="absolute left-3 right-3 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
+              {searchHits.map((h, idx) => (
+                <button key={idx}
+                  onClick={() => { if (h.type === "law" && mode !== "law") toggleMode(); if (h.type === "interp" && mode !== "interpretation") toggleMode(); goTo(h.number); setSearch(""); }}
+                  className="block w-full border-b border-[#3a4f6b]/50 px-3 py-2 text-left hover:bg-[#2d3d56]">
+                  <span className={`text-[10px] ${h.type === "law" ? "text-[#3b82f6]" : "text-[#d4a853]"}`}>
+                    {h.type === "law" ? `第${h.number}条` : `解释${h.number}条`}
+                  </span>
+                  <p className="text-xs truncate text-[#e8edf4]/70">{h.snippet}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 内容区域 */}
         <div className="flex-1 overflow-hidden relative">
           {/* 法条面板 */}
-          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "article" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
-            <div className="px-4 py-4">
+          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "article" ? "z-10" : "z-0 pointer-events-none opacity-0"}`}>
+            <div className="px-4 pb-4">
               <div className="flex items-center gap-2 text-xs text-[#94a3b8] mb-2">
                 {chapter && <span>{(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
               </div>
@@ -167,22 +175,11 @@ export function Workbench() {
               ) : (
                 <div className="rounded border border-dashed border-[#3a4f6b] p-6 text-center text-[#94a3b8] text-xs">暂无内容</div>
               )}
-              <div className="mt-6 flex justify-between gap-2">
-                <button disabled={!prev} onClick={() => prev && goTo(prev)}
-                  className="rounded border border-[#3a4f6b] bg-[#1a2332] px-3 py-1.5 text-xs disabled:opacity-30">
-                  ← 第 {prev ?? "-"} 条
-                </button>
-                <span className="text-xs text-[#94a3b8] self-center">{current}/{totalArticles}</span>
-                <button disabled={!next} onClick={() => next && goTo(next)}
-                  className="rounded border border-[#3a4f6b] bg-[#1a2332] px-3 py-1.5 text-xs disabled:opacity-30">
-                  第 {next ?? "-"} 条 →
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* 目录面板 */}
-          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "side" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
+          {/* 目录面板（点击📑目录按钮切换） */}
+          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "side" ? "z-10" : "z-0 pointer-events-none opacity-0"}`}>
             <div className="p-3">
               {(chapters as any[]).map((c: any) => {
                 const isActiveChapter = chapter?.id === c.id;
@@ -207,45 +204,20 @@ export function Workbench() {
               })}
             </div>
           </div>
-
-          {/* 关联面板 */}
-          <div className={`absolute inset-0 overflow-y-auto ${mobileTab === "panel" ? "z-10" : "z-0 opacity-0 pointer-events-none"}`}>
-            <div className="p-3 space-y-2">
-              {(mode === "law" ? relatedInterps : relatedLaws).length === 0 ? (
-                <div className="text-xs text-[#94a3b8] text-center py-6">无关联内容</div>
-              ) : (
-                (mode === "law" ? relatedInterps : relatedLaws).map((item: any, idx: number) => (
-                  <button key={item.id || item.number || idx}
-                    onClick={() => { goTo(item.number); setMobileTab("article"); }}
-                    className="block w-full text-left rounded border border-[#3a4f6b] bg-[#243044] p-3">
-                    <div className="text-[10px] text-[#d4a853]">{item.doc || "法条"} 第 {item.number} 条</div>
-                    <p className="text-xs text-[#e8edf4]/70 line-clamp-2 mt-1">{item.paragraphs[0]}</p>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* 底部导航栏 */}
-        <nav className="flex shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] px-2 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] gap-1">
-          {[
-            { key: "article", icon: "📖", label: mode === "law" ? "法条" : "司法解释" },
-            { key: "side", icon: "📑", label: "目录" },
-            { key: "panel", icon: "🔗", label: mode === "law" ? "关联解释" : "关联法条" },
-          ].map(({ key, icon, label }) => (
-            <button key={key}
-              onClick={() => setMobileTab(key as any)}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors ${
-                mobileTab === key
-                  ? "text-[#d4a853] bg-[#d4a853]/10"
-                  : "text-[#94a3b8]"
-              }`}>
-              <span className="text-base leading-none">{icon}</span>
-              <span className="text-[10px] font-semibold">{label}</span>
-            </button>
-          ))}
-        </nav>
+        {/* 底部固定：翻页键 */}
+        <div className="flex items-center justify-between shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+          <button disabled={!prev} onClick={() => prev && goTo(prev)}
+            className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">
+            ← 上一条
+          </button>
+          <span className="text-xs text-[#94a3b8]">{current} / {totalArticles}</span>
+          <button disabled={!next} onClick={() => next && goTo(next)}
+            className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">
+            下一条 →
+          </button>
+        </div>
       </div>
     );
   }

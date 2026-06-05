@@ -304,11 +304,7 @@ export function Workbench() {
             <ArrowLeftRight className="h-3.5 w-3.5" />
             {mode === "law" ? "司法解释库" : "民诉法条"}
           </button>
-          {mode === "law" && (
-            <a href="#/interpretations" className="hidden xl:inline-flex items-center gap-1 rounded-md border border-[#3a4f6b] bg-[#0f1419]/60 px-2.5 py-1.5 text-[#e8edf4] hover:border-[#d4a853] hover:text-[#d4a853]">
-              <Library className="h-3.5 w-3.5" /> 司法解释库 <ExternalLink className="h-3 w-3 opacity-60" />
-            </a>
-          )}
+
           <div className="hidden xl:flex flex-col items-end leading-tight text-[#94a3b8]">
             <span className="inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-[#d4a853]" /> 制作人　梨花开　SQH</span>
             <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-[#d4a853]" /> 仅供学习研究使用</span>
@@ -433,55 +429,58 @@ export function Workbench() {
       </aside>
 
       {/* ───── 中栏：法条 / 司法解释正文 ───── */}
-      <main ref={centerScrollRef} className="overflow-y-auto px-8 py-8">
-        {/* 面包屑 */}
-        <div className="flex items-center gap-2 text-xs text-[#94a3b8]">
-          {mode === "law" && <span className="rounded bg-[#3b82f6]/20 px-1.5 py-0.5 text-[#3b82f6]">法条</span>}
-          {mode === "interpretation" && <span className="rounded bg-[#d4a853]/20 px-1.5 py-0.5 text-[#d4a853]">司法解释</span>}
-          {chapter && <span>· {(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
-          <span className="ml-auto">{mode === "law" ? "民事诉讼法" : "最高人民法院关于适用《中华人民共和国民事诉讼法》的解释"}</span>
+      <main ref={centerScrollRef} className="flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto px-8 py-8">
+          {/* 面包屑 */}
+          <div className="flex items-center gap-2 text-xs text-[#94a3b8]">
+            {mode === "law" && <span className="rounded bg-[#3b82f6]/20 px-1.5 py-0.5 text-[#3b82f6]">法条</span>}
+            {mode === "interpretation" && <span className="rounded bg-[#d4a853]/20 px-1.5 py-0.5 text-[#d4a853]">司法解释</span>}
+            {chapter && <span>· {(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
+            <span className="ml-auto">{mode === "law" ? "民事诉讼法" : "最高人民法院关于适用《中华人民共和国民事诉讼法》的解释"}</span>
+          </div>
+
+          {/* 条文标题 */}
+          {mode === "law" && currentArticle && "title" in currentArticle && currentArticle.title && (
+            <h2 className="mt-3 font-serif text-lg text-[#d4a853] border-b border-[#3a4f6b] pb-2">
+              {(currentArticle as any).title}
+            </h2>
+          )}
+
+          <h3 className="mt-4 text-sm text-[#94a3b8]">
+            {mode === "law" ? `第 ${current} 条` : `《民诉法解释》第 ${current} 条`}
+          </h3>
+
+          {/* 正文 */}
+          {currentArticle ? (
+            <ArticleBody
+              paragraphs={(currentArticle as any).paragraphs}
+              variant="dark"
+            />
+          ) : (
+            <div className="rounded border border-dashed border-[#3a4f6b] p-8 text-center text-[#94a3b8]">该条暂无内容</div>
+          )}
         </div>
 
-        {/* 条文标题 */}
-        {mode === "law" && currentArticle && "title" in currentArticle && currentArticle.title && (
-          <h2 className="mt-3 font-serif text-lg text-[#d4a853] border-b border-[#3a4f6b] pb-2">
-            {(currentArticle as any).title}
-          </h2>
-        )}
-
-        <h3 className="mt-4 text-sm text-[#94a3b8]">
-          {mode === "law" ? `第 ${current} 条` : `《民诉法解释》第 ${current} 条`}
-        </h3>
-
-        {/* 正文 */}
-        {currentArticle ? (
-          <ArticleBody
-            paragraphs={(currentArticle as any).paragraphs}
-            variant="dark"
+        {/* 翻页导航 - 固定在底部 */}
+        <div className="border-t border-[#3a4f6b] bg-[#1a2332] px-8 py-4">
+          <ArticleNav
+            prev={
+              <button disabled={!prev} onClick={() => prev && goTo(prev)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#3a4f6b] bg-[#0f1419] px-3 py-2 text-sm text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6] max-sm:text-xs max-sm:px-2 max-sm:py-1.5">
+                <ChevronLeft className="h-4 w-4" /> {prev ? `第 ${prev} 条` : "已是首条"}
+              </button>
+            }
+            center={
+              <span className="text-xs text-[#94a3b8]">第 {current} 条 / {totalArticles}</span>
+            }
+            next={
+              <button disabled={!next} onClick={() => next && goTo(next)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#3a4f6b] bg-[#0f1419] px-3 py-2 text-sm text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6] max-sm:text-xs max-sm:px-2 max-sm:py-1.5">
+                {next ? `第 ${next} 条` : "已是末条"} <ChevronRight className="h-4 w-4" />
+              </button>
+            }
           />
-        ) : (
-          <div className="rounded border border-dashed border-[#3a4f6b] p-8 text-center text-[#94a3b8]">该条暂无内容</div>
-        )}
-
-        {/* 翻页导航 */}
-        <ArticleNav
-          className="mt-10 border-t border-[#3a4f6b] pt-5"
-          prev={
-            <button disabled={!prev} onClick={() => prev && goTo(prev)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#3a4f6b] bg-[#1a2332] px-3 py-2 text-sm text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6] max-sm:text-xs max-sm:px-2 max-sm:py-1.5">
-              <ChevronLeft className="h-4 w-4" /> {prev ? `第 ${prev} 条` : "已是首条"}
-            </button>
-          }
-          center={
-            <span className="text-xs text-[#94a3b8]">第 {current} 条 / {totalArticles}</span>
-          }
-          next={
-            <button disabled={!next} onClick={() => next && goTo(next)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#3a4f6b] bg-[#1a2332] px-3 py-2 text-sm text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6] max-sm:text-xs max-sm:px-2 max-sm:py-1.5">
-              {next ? `第 ${next} 条` : "已是末条"} <ChevronRight className="h-4 w-4" />
-            </button>
-          }
-        />
+        </div>
       </main>
 
       {/* ───── 右栏：关联信息 ───── */}

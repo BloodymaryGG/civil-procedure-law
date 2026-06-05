@@ -12,12 +12,16 @@ const joinText = (paras: string[]) => paras.join("\n");
 export function searchAll(query: string, limit = 200): SearchHit[] {
   const q = query.trim();
   if (!q) return [];
-  const lower = q.toLowerCase();
 
   // 支持「第X条」「119」等条号查询
   const articleMatch = q.match(/^第?\s*(\d+)\s*条?$/);
   const numQuery = articleMatch ? parseInt(articleMatch[1], 10) : null;
 
+  interface Scored {
+    hit: SearchHit;
+    score: number;
+  }
+  const keywords = q.split(/[\s,，、]+/).filter(Boolean);
   interface Scored {
     hit: SearchHit;
     score: number;
@@ -33,24 +37,18 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
       continue;
     }
 
-    // 标题匹配优先，正文匹配其次，按得分排序
+    // 多关键词：任意关键词命中即匹配，每个命中加分
     let score = 0;
-    const inTitle = a.title?.toLowerCase().includes(lower);
-    const inBody = full.toLowerCase().includes(lower);
-
-    if (inTitle || inBody) {
-      if (inTitle) score += 500;
-      if (inBody) {
-        score += 100;
-        // 多关键词：每个命中加5分
-        const keywords = q.split(/[\s,，、]+/).filter(Boolean);
-        for (const kw of keywords) {
-          if (full.toLowerCase().includes(kw.toLowerCase())) score += 5;
-          if (a.title?.toLowerCase().includes(kw.toLowerCase())) score += 50;
-        }
-      }
-      scored.push({ hit: { type: "law", article: a, snippet: makeSmartSnippet(a, q) }, score });
+    let matched = false;
+    for (const kw of keywords) {
+      const inTitle = a.title?.toLowerCase().includes(kw.toLowerCase());
+      const inBody = full.toLowerCase().includes(kw.toLowerCase());
+      if (inTitle) { score += 500; matched = true; }
+      if (inBody) { score += 100; matched = true; }
     }
+    if (!matched) continue;
+
+    scored.push({ hit: { type: "law", article: a, snippet: makeSmartSnippet(a, q) }, score });
   }
 
   for (const i of interpretations) {
@@ -61,14 +59,15 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
       continue;
     }
 
-    if (full.toLowerCase().includes(lower)) {
-      let score = 50;
-      const keywords = q.split(/[\s,，、]+/).filter(Boolean);
-      for (const kw of keywords) {
-        if (full.toLowerCase().includes(kw.toLowerCase())) score += 10;
-      }
-      scored.push({ hit: { type: "interpretation", article: i, snippet: makeSnippet(full, q) }, score });
+    // 多关键词：任意命中即匹配
+    let score = 0;
+    let matched = false;
+    for (const kw of keywords) {
+      if (full.toLowerCase().includes(kw.toLowerCase())) { score += 50; matched = true; }
     }
+    if (!matched) continue;
+
+    scored.push({ hit: { type: "interpretation", article: i, snippet: makeSnippet(full, q) }, score });
   }
 
   // 按得分降序排列

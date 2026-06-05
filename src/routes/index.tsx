@@ -157,7 +157,7 @@ export function Workbench() {
                     <span className={`text-[10px] ${h.type === "law" ? "text-[#3b82f6]" : "text-[#d4a853]"}`}>
                       {h.type === "law" ? `第${h.number}条` : `解释${h.number}条`}
                     </span>
-                    <p className="text-xs truncate text-[#e8edf4]/70">{h.snippet}</p>
+                    <p className="text-xs truncate text-[#e8edf4]/70" dangerouslySetInnerHTML={{__html: highlight(h.snippet, search)}} />
                   </button>
                 ))}
               </div>

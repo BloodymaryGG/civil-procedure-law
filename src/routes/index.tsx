@@ -136,7 +136,7 @@ export function Workbench() {
               className="w-full rounded border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-7 pr-2 text-xs outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6]" />
             {search && searchHits.length > 0 && (
               <div className="absolute left-0 right-0 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
-                {searchHits.slice(0, 8).map((h, idx) => (
+                {searchHits.map((h, idx) => (
                   <button key={idx}
                     onClick={() => { if (h.type === "law" && mode !== "law") toggleMode(); if (h.type === "interp" && mode !== "interpretation") toggleMode(); goTo(h.number); setSearch(""); }}
                     className="block w-full border-b border-[#3a4f6b]/50 px-3 py-2 text-left hover:bg-[#2d3d56]">

@@ -58,6 +58,10 @@
 [data-theme] .bg-\[\#1a2332\] { background-color: var(--theme-panel) !important; }
 [data-theme] .bg-\[\#243044\] { background-color: var(--theme-card) !important; }
 [data-theme] .text-\[\#e8edf4\] { color: var(--theme-text) !important; }
+[data-theme] .text-\[\#e8edf4\]\/70 { color: color-mix(in srgb, var(--theme-text) 70%, transparent) !important; }
+[data-theme] .text-\[\#e8edf4\]\/80 { color: color-mix(in srgb, var(--theme-text) 80%, transparent) !important; }
+[data-theme] .text-\[\#e8edf4\]\/85 { color: color-mix(in srgb, var(--theme-text) 85%, transparent) !important; }
+[data-theme] .text-\[\#e8edf4\]\/90 { color: color-mix(in srgb, var(--theme-text) 90%, transparent) !important; }
 [data-theme] .text-\[\#94a3b8\] { color: var(--theme-muted) !important; }
 [data-theme] .text-\[\#d4a853\] { color: var(--theme-gold) !important; }
 [data-theme] .text-\[\#3b82f6\] { color: var(--theme-accent) !important; }

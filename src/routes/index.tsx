@@ -132,7 +132,7 @@ export function Workbench() {
       <div className="h-dvh grid grid-rows-[auto_1fr_auto] overflow-hidden" data-theme={theme}>
         {/* 页眉 */}
         <header className="border-b border-[#3a4f6b]"
-          style={{padding: '0.5rem 0.75rem', paddingTop: 'max(0.5rem, env(safe-area-inset-top))', background: '#0f1419'}}>
+          style={{padding: '0.5rem 0.75rem', paddingTop: 'max(0.5rem, env(safe-area-inset-top))', background: 'var(--theme-bg)'}}>
           <div className="flex items-center justify-between mb-1.5">
             <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
               className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4]">📑 目录</button>
@@ -249,7 +249,7 @@ export function Workbench() {
 
         {/* 页脚 */}
         <footer className="border-t border-[#3a4f6b]"
-          style={{padding: '0.5rem 0.75rem', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))', background: '#1a2332'}}>
+          style={{padding: '0.5rem 0.75rem', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))', background: 'var(--theme-panel)'}}>
           <div className="flex items-center justify-between">
             <button disabled={!prev} onClick={() => prev && goTo(prev)}
               className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">← 上一条</button>

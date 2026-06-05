@@ -126,8 +126,8 @@ export function Workbench() {
     return (
       <div className="h-dvh flex flex-col bg-[#0f1419] text-[#e8edf4] overscroll-none">
         {/* 顶部固定：目录按钮 + 切换按钮 */}
-        <div className="shrink-0 bg-[#0f1419] border-b border-[#3a4f6b]">
-          <div className="flex items-center justify-between px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-1">
+        <div className="shrink-0 bg-[#0f1419] border-b border-[#3a4f6b] pt-[env(safe-area-inset-top,0px)]">
+          <div className="flex items-center justify-between px-3 pt-2 pb-1">
             <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
               className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4]">
               📑 目录
@@ -246,8 +246,8 @@ export function Workbench() {
         </main>
 
         {/* 底部固定：翻页键 */}
-        <footer className="shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
-          <div className="flex items-center justify-between">
+        <footer className="shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] pb-[env(safe-area-inset-bottom,0px)]">
+          <div className="flex items-center justify-between px-4 py-2.5">
             <button disabled={!prev} onClick={() => prev && goTo(prev)}
               className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">
               ← 上一条

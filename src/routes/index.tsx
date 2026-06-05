@@ -121,29 +121,26 @@ export function Workbench() {
   const prev = current > 1 ? current - 1 : null;
   const next = current < totalArticles ? current + 1 : null;
 
-  /* ── Mobile（顶部固定 + 底部固定 + 中间滚动） ── */
+  /* ── Mobile ── */
   if (isMobile) {
     return (
-      <div className="h-dvh flex flex-col bg-[#0f1419] text-[#e8edf4] overscroll-none">
-        {/* 顶部固定：目录按钮 + 切换按钮 */}
-        <div className="shrink-0 bg-[#0f1419] border-b border-[#3a4f6b] pt-[env(safe-area-inset-top,0px)]">
-          <div className="flex items-center justify-between px-3 pt-2 pb-1">
+      <div className="h-dvh grid grid-rows-[auto_1fr_auto] overflow-hidden bg-[#0f1419] text-[#e8edf4]">
+        {/* 页眉 */}
+        <header className="border-b border-[#3a4f6b]"
+          style={{padding: '0.5rem 0.75rem', paddingTop: 'max(0.5rem, env(safe-area-inset-top))', background: '#0f1419'}}>
+          <div className="flex items-center justify-between mb-1.5">
             <button onClick={() => setMobileTab(mobileTab === "article" ? "side" : "article")}
-              className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4]">
-              📑 目录
-            </button>
+              className="rounded border border-[#3a4f6b] bg-[#1a2332] px-2.5 py-1.5 text-xs text-[#e8edf4]">📑 目录</button>
             <button onClick={toggleMode}
-              className="rounded border border-[#d4a853]/40 px-2.5 py-1.5 text-[11px] text-[#d4a853]">
-              {mode === "law" ? "⇄ 司法解释" : "⇄ 法条"}
-            </button>
+              className="rounded border border-[#d4a853]/40 px-2.5 py-1.5 text-[11px] text-[#d4a853]">{mode === "law" ? "⇄ 司法解释" : "⇄ 法条"}</button>
           </div>
-          <div className="relative px-3 pb-2">
-            <Search className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="搜索条号或关键词"
-              className="w-full rounded border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-7 pr-2 text-xs outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6]" />
+              className="w-full rounded border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-8 pr-2 text-xs outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6]" />
             {search && searchHits.length > 0 && (
-              <div className="absolute left-3 right-3 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
+              <div className="absolute left-0 right-0 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
                 {searchHits.map((h, idx) => (
                   <button key={idx}
                     onClick={() => { if (h.type === "law" && mode !== "law") toggleMode(); if (h.type === "interp" && mode !== "interpretation") toggleMode(); goTo(h.number); setSearch(""); }}
@@ -157,10 +154,10 @@ export function Workbench() {
               </div>
             )}
           </div>
-        </div>
+        </header>
 
-        {/* 中间滚动：法条或目录 */}
-        <main className="flex-1 overflow-y-auto">
+        {/* 正文 */}
+        <main className="overflow-y-auto">
           {mobileTab === "article" ? (
             <div className="px-4 py-4">
               <div className="article-chapter-badge">
@@ -245,18 +242,15 @@ export function Workbench() {
           )}
         </main>
 
-        {/* 底部固定：翻页键 */}
-        <footer className="shrink-0 border-t border-[#3a4f6b] bg-[#1a2332] pb-[env(safe-area-inset-bottom,0px)]">
-          <div className="flex items-center justify-between px-4 py-2.5">
+        {/* 页脚 */}
+        <footer className="border-t border-[#3a4f6b]"
+          style={{padding: '0.5rem 0.75rem', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))', background: '#1a2332'}}>
+          <div className="flex items-center justify-between">
             <button disabled={!prev} onClick={() => prev && goTo(prev)}
-              className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">
-              ← 上一条
-            </button>
+              className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">← 上一条</button>
             <span className="text-xs text-[#94a3b8]">{current} / {totalArticles}</span>
             <button disabled={!next} onClick={() => next && goTo(next)}
-              className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">
-              下一条 →
-            </button>
+              className="rounded border border-[#3a4f6b] bg-[#0f1419] px-3 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30">下一条 →</button>
           </div>
         </footer>
       </div>

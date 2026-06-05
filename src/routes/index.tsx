@@ -124,7 +124,7 @@ export function Workbench() {
   /* ── Mobile（顶部固定 + 底部固定 + 中间滚动） ── */
   if (isMobile) {
     return (
-      <div className="h-screen flex flex-col bg-[#0f1419] text-[#e8edf4] overscroll-none">
+      <div className="h-dvh flex flex-col bg-[#0f1419] text-[#e8edf4] overscroll-none">
         {/* 顶部固定：目录按钮 + 切换按钮 */}
         <div className="shrink-0 bg-[#0f1419] border-b border-[#3a4f6b]">
           <div className="flex items-center justify-between px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-1">

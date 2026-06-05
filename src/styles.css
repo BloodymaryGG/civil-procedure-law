@@ -121,12 +121,16 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { font-family: var(--font-sans-cn); background-color: #0f1419; }
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+  html, body, #root {
     font-family: var(--font-sans-cn);
+    background-color: #0f1419;
+    color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: fixed;
   }
   h1, h2, h3, h4, .font-serif {
     font-family: var(--font-serif-cn);

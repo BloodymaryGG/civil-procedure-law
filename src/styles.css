@@ -4,6 +4,77 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@custom-variant dark (&:is(.dark *));
+
+/* ── 三套主题配色 ── */
+:root, [data-theme="dark"] {
+  --theme-bg: #0f1419;
+  --theme-panel: #1a2332;
+  --theme-card: #243044;
+  --theme-text: #e8edf4;
+  --theme-gold: #d4a853;
+  --theme-border: #3a4f6b;
+  --theme-accent: #3b82f6;
+  --theme-muted: #94a3b8;
+  --theme-hover: #2d3d56;
+  --theme-header-bg: #1a2332;
+  --theme-footer-bg: #1a2332;
+}
+[data-theme="white"] {
+  --theme-bg: #f5f5f0;
+  --theme-panel: #ffffff;
+  --theme-card: #eeeeea;
+  --theme-text: #1a1a1a;
+  --theme-gold: #8b6914;
+  --theme-border: #d4d4d0;
+  --theme-accent: #2563eb;
+  --theme-muted: #6b7280;
+  --theme-hover: #e5e5e0;
+  --theme-header-bg: #ffffff;
+  --theme-footer-bg: #ffffff;
+}
+[data-theme="green"] {
+  --theme-bg: #c7edcc;
+  --theme-panel: #d4efdf;
+  --theme-card: #e8f5e9;
+  --theme-text: #2e3b2e;
+  --theme-gold: #7b5e3b;
+  --theme-border: #a8d8a8;
+  --theme-accent: #2e7d32;
+  --theme-muted: #4a5a4a;
+  --theme-hover: #b8dfc0;
+  --theme-header-bg: #d4efdf;
+  --theme-footer-bg: #d4efdf;
+}
+
+/* 主题配色应用 */
+[data-theme] {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+/* Override specific hardcoded colors with theme variables */
+[data-theme] .border-\[\#3a4f6b\] { border-color: var(--theme-border) !important; }
+[data-theme] .bg-\[\#1a2332\] { background-color: var(--theme-panel) !important; }
+[data-theme] .bg-\[\#243044\] { background-color: var(--theme-card) !important; }
+[data-theme] .text-\[\#e8edf4\] { color: var(--theme-text) !important; }
+[data-theme] .text-\[\#94a3b8\] { color: var(--theme-muted) !important; }
+[data-theme] .text-\[\#d4a853\] { color: var(--theme-gold) !important; }
+[data-theme] .text-\[\#3b82f6\] { color: var(--theme-accent) !important; }
+[data-theme] .bg-\[\#0f1419\] { background-color: var(--theme-bg) !important; }
+[data-theme] .hover\:bg-\[\#2d3d56\]:hover { background-color: var(--theme-hover) !important; }
+[data-theme] .hover\:border-\[\#d4a853\]:hover { border-color: var(--theme-gold) !important; }
+[data-theme] .hover\:border-\[\#3b82f6\]:hover { border-color: var(--theme-accent) !important; }
+[data-theme] .bg-\[\#d4a853\]\/15 { background-color: color-mix(in srgb, var(--theme-gold) 15%, transparent) !important; }
+[data-theme] .border-\[\#d4a853\]\/30 { border-color: color-mix(in srgb, var(--theme-gold) 30%, transparent) !important; }
+[data-theme] .bg-\[\#d4a853\]\/12 { background-color: color-mix(in srgb, var(--theme-gold) 12%, transparent) !important; }
+[data-theme] .bg-\[\#d4a853\]\/10 { background-color: color-mix(in srgb, var(--theme-gold) 10%, transparent) !important; }
+[data-theme] .bg-\[\#d4a853\]\/20 { background-color: color-mix(in srgb, var(--theme-gold) 20%, transparent) !important; }
+[data-theme] .bg-\[\#3b82f6\]\/20 { background-color: color-mix(in srgb, var(--theme-accent) 20%, transparent) !important; }
+[data-theme] .bg-\[\#3b82f6\]\/15 { background-color: color-mix(in srgb, var(--theme-accent) 15%, transparent) !important; }
+[data-theme] .bg-\[\#3b82f6\]\/10 { background-color: color-mix(in srgb, var(--theme-accent) 10%, transparent) !important; }
+[data-theme] .border-\[\#d4a853\]\/40 { border-color: color-mix(in srgb, var(--theme-gold) 40%, transparent) !important; }
+
 /*
  * 民事诉讼法查询系统 — 庄重权威设计系统
  * 深蓝主调 + 金色点缀，参考最高法官网与传统法典装帧

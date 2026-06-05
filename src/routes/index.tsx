@@ -42,6 +42,7 @@ type SearchResult = {
 
 /* ─────────────────── Workbench ─────────────────── */
 export function Workbench() {
+  const [theme, setTheme] = useState<"dark" | "white" | "green">("dark");
   const [mode, setMode] = useState<"law" | "interpretation">("law");
   const [current, setCurrent] = useState(1);
   const [search, setSearch] = useState("");
@@ -118,13 +119,17 @@ export function Workbench() {
     setSearch("");
   };
 
+  const cycleTheme = () => {
+    setTheme(t => t === "dark" ? "white" : t === "white" ? "green" : "dark");
+  };
+
   const prev = current > 1 ? current - 1 : null;
   const next = current < totalArticles ? current + 1 : null;
 
   /* ── Mobile ── */
   if (isMobile) {
     return (
-      <div className="h-dvh grid grid-rows-[auto_1fr_auto] overflow-hidden bg-[#0f1419] text-[#e8edf4]">
+      <div className="h-dvh grid grid-rows-[auto_1fr_auto] overflow-hidden" data-theme={theme}>
         {/* 页眉 */}
         <header className="border-b border-[#3a4f6b]"
           style={{padding: '0.5rem 0.75rem', paddingTop: 'max(0.5rem, env(safe-area-inset-top))', background: '#0f1419'}}>
@@ -259,15 +264,15 @@ export function Workbench() {
 
   /* ── Desktop ── */
   return (
-    <div className="h-screen w-full grid overflow-hidden bg-[#0f1419] text-[#e8edf4]"
+    <div className="h-screen w-full grid overflow-hidden" data-theme={theme}
          style={{ gridTemplateColumns: "280px 1fr minmax(360px, 420px)", gridTemplateRows: "auto 1fr" }}>
       {/* ── Header ── */}
-      <header className="col-span-3 grid items-center gap-x-4 gap-y-2 border-b border-[#3a4f6b] px-5 py-3"
-        style={{ background: "linear-gradient(135deg, #1a2332 0%, #0f1419 100%)", gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 36rem) minmax(0, 1fr)" }}>
+      <header className="col-span-3 grid items-center gap-x-4 gap-y-2 px-5 py-3"
+        style={{ borderBottom: '1px solid var(--theme-border)', background: 'linear-gradient(135deg, var(--theme-header-bg) 0%, var(--theme-bg) 100%)', gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 36rem) minmax(0, 1fr)" }}>
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-[#d4a853]/15 border border-[#d4a853]/30">
+          <button onClick={cycleTheme} title="切换主题" className="grid h-8 w-8 place-items-center rounded-md bg-[#d4a853]/15 border border-[#d4a853]/30 cursor-pointer hover:bg-[#d4a853]/25 transition-colors">
             <Scale className="h-4 w-4 text-[#d4a853]" />
-          </div>
+          </button>
           <h1 className="font-serif text-lg font-bold text-[#d4a853] whitespace-nowrap">
             {mode === "law" ? "民事诉讼法及司法解释" : "民诉法司法解释"}
           </h1>

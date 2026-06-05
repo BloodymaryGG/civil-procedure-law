@@ -5,6 +5,7 @@ import { interpretations, interpChapters, TOTAL_INTERP_ARTICLES } from "@/data/i
 import type { InterpretationArticle } from "@/data/types";
 import { ArticleBody, ArticleNav } from "@/components/site-chrome";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { searchAll, highlight as searchHighlight } from "@/lib/search";
 
 /* ─────────────────── 中文条号解析 ─────────────────── */
 const CN: Record<string, number> = { 零:0, 一:1, 二:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9, 十:10, 百:100 };
@@ -83,33 +84,17 @@ export function Workbench() {
     tocActiveRef.current?.scrollIntoView({ block: "nearest" });
   }, [current, mode, mounted]);
 
-  /* ── 搜索：法条 + 司法解释 ── */
+  /* ── 搜索：法条 + 司法解释（使用 lib/search.ts 的多关键词检索） ── */
   const searchHits = useMemo((): SearchResult[] => {
     const q = search.trim();
     if (!q) return [];
-    const results: SearchResult[] = [];
-
-    const lawNum = parseArticleQuery(q, TOTAL_LAW_ARTICLES);
-    if (lawNum) {
-      const a = lawArticleMap.get(lawNum);
-      if (a) results.push({ type: "law", number: a.number, title: a.title ?? "", chapter: a.chapterTitle, snippet: a.paragraphs[0] });
-    }
-    const interpNum = parseArticleQuery(q, TOTAL_INTERP_ARTICLES);
-    if (interpNum) {
-      const a = interpArticleMap.get(interpNum);
-      if (a) results.push({ type: "interp", number: a.number, title: "民诉法解释", chapter: a.chapter ?? "", snippet: a.paragraphs[0] });
-    }
-    if (lawNum || interpNum) return results.slice(0, 20);
-
-    for (const a of lawArticles) {
-      if (a.title?.includes(q) || a.paragraphs.some((p) => p.includes(q)))
-        results.push({ type: "law", number: a.number, title: a.title ?? "", chapter: a.chapterTitle, snippet: a.paragraphs[0] });
-    }
-    for (const a of interpretations) {
-      if (a.paragraphs.some((p) => p.includes(q)))
-        results.push({ type: "interp", number: a.number, title: "民诉法解释", chapter: a.chapter ?? "", snippet: a.paragraphs[0] });
-    }
-    return results.slice(0, 30);
+    return searchAll(q, 50).map((h) => ({
+      type: h.type === "law" ? "law" as const : "interp" as const,
+      number: h.article.number,
+      title: h.type === "law" ? h.article.title ?? "" : "民诉法解释",
+      chapter: h.type === "law" ? h.article.chapterTitle : (h.article as InterpretationArticle).chapter ?? "",
+      snippet: h.snippet,
+    }));
   }, [search]);
 
   const relatedInterps = useMemo(

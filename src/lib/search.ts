@@ -22,10 +22,6 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
     score: number;
   }
   const keywords = q.split(/[\s,，、]+/).filter(Boolean);
-  interface Scored {
-    hit: SearchHit;
-    score: number;
-  }
   const scored: Scored[] = [];
 
   for (const a of lawArticles) {
@@ -37,16 +33,17 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
       continue;
     }
 
-    // 多关键词：任意关键词命中即匹配，每个命中加分
+    // 多关键词：所有关键词都必须命中（交集），每个在标题中命中额外加分
     let score = 0;
-    let matched = false;
+    let allMatched = true;
     for (const kw of keywords) {
       const inTitle = a.title?.toLowerCase().includes(kw.toLowerCase());
       const inBody = full.toLowerCase().includes(kw.toLowerCase());
-      if (inTitle) { score += 500; matched = true; }
-      if (inBody) { score += 100; matched = true; }
+      if (inTitle) score += 500;
+      if (inBody) score += 100;
+      if (!inTitle && !inBody) { allMatched = false; break; }
     }
-    if (!matched) continue;
+    if (!allMatched) continue;
 
     scored.push({ hit: { type: "law", article: a, snippet: makeSmartSnippet(a, q) }, score });
   }
@@ -59,13 +56,14 @@ export function searchAll(query: string, limit = 200): SearchHit[] {
       continue;
     }
 
-    // 多关键词：任意命中即匹配
+    // 多关键词：所有关键词都必须命中（交集）
     let score = 0;
-    let matched = false;
+    let allMatched = true;
     for (const kw of keywords) {
-      if (full.toLowerCase().includes(kw.toLowerCase())) { score += 50; matched = true; }
+      if (full.toLowerCase().includes(kw.toLowerCase())) { score += 50; }
+      else { allMatched = false; break; }
     }
-    if (!matched) continue;
+    if (!allMatched) continue;
 
     scored.push({ hit: { type: "interpretation", article: i, snippet: makeSnippet(full, q) }, score });
   }

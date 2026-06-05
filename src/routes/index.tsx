@@ -478,10 +478,17 @@ function range(a: number, b: number) {
 }
 
 function highlight(text: string, q: string) {
-  const t = text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+  const t = text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
   const k = q.trim();
   if (!k || k.length < 1) return t;
-  try {
-    return t.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), `<mark style="background:#d4a853;color:#0f1419;padding:0 2px;border-radius:2px">$&</mark>`);
-  } catch { return t; }
+  const keywords = k.split(/[\s,，、]+/).filter(Boolean);
+  let result = t;
+  for (const kw of keywords) {
+    if (kw.length < 1) continue;
+    try {
+      const re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+      result = result.replace(re, `<mark style="background:#d4a853;color:#0f1419;padding:0 2px;border-radius:2px">$&</mark>`);
+    } catch {}
+  }
+  return result;
 }

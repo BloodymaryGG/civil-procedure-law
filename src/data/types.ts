@@ -10,7 +10,7 @@ export type LawChapter = {
 
 export type LawArticle = {
   number: number;
-  title: string;       // 条文主旨
+  title?: string;      // 条文主旨（已全部删除，留空以备将来使用）
   partTitle: string;
   chapterTitle: string;
   sectionTitle?: string;

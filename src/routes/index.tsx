@@ -109,8 +109,15 @@ export function Workbench() {
     return c.relatedLawArticles.map((n) => lawArticleMap.get(n)).filter(Boolean);
   }, [current, mode, currentArticle]);
 
-  const goTo = (n: number) => {
-    if (n >= 1 && n <= totalArticles) { setCurrent(n); setSearch(""); }
+  const goTo = (n: number, targetMode?: "law" | "interpretation") => {
+    const max = targetMode === "interpretation" ? TOTAL_INTERP_ARTICLES
+      : targetMode === "law" ? TOTAL_LAW_ARTICLES
+      : totalArticles;
+    if (n >= 1 && n <= max) {
+      if (targetMode) setMode(targetMode);
+      setCurrent(n);
+      setSearch("");
+    }
   };
 
   const toggleMode = () => {
@@ -152,7 +159,7 @@ export function Workbench() {
               <div className="absolute left-0 right-0 top-full z-40 max-h-60 overflow-y-auto rounded border border-[#3a4f6b] bg-[#1a2332] shadow-xl">
                 {searchHits.map((h, idx) => (
                   <button key={idx}
-                    onClick={() => { if (h.type === "law" && mode !== "law") toggleMode(); if (h.type === "interp" && mode !== "interpretation") toggleMode(); goTo(h.number); setSearch(""); }}
+                    onClick={() => { goTo(h.number, h.type === "law" ? "law" : "interpretation"); setSearch(""); }}
                     className="block w-full border-b border-[#3a4f6b]/50 px-3 py-2 text-left hover:bg-[#2d3d56]">
                     <span className={`text-[10px] ${h.type === "law" ? "text-[#3b82f6]" : "text-[#d4a853]"}`}>
                       {h.type === "law" ? `第${h.number}条` : `解释${h.number}条`}
@@ -185,7 +192,7 @@ export function Workbench() {
                         <div className="space-y-2">
                           {relatedInterps.map((item) => (
                             <button key={item.id}
-                              onClick={() => { setMode("interpretation"); goTo(item.number); }}
+                              onClick={() => { goTo(item.number, "interpretation"); }}
                               className="related-card-item">
                               <div className="flex items-center gap-1.5 text-[10px]">
                                 <span className="text-[#d4a853]">解释</span>
@@ -205,7 +212,7 @@ export function Workbench() {
                         <div className="space-y-2">
                           {relatedLaws.map((a: any) => (
                             <button key={a.number}
-                              onClick={() => { setMode("law"); goTo(a.number); }}
+                              onClick={() => { goTo(a.number, "law"); }}
                               className="related-card-item">
                               <div className="flex items-center gap-1.5 text-[10px]">
                                 <span className="text-[#3b82f6]">法条</span>
@@ -292,9 +299,7 @@ export function Workbench() {
             onKeyDown={(e) => {
               if (e.key === "Enter" && searchHits[0]) {
                 const h = searchHits[0];
-                if (h.type === "law" && mode !== "law") setMode("law");
-                if (h.type === "interp" && mode !== "interpretation") setMode("interpretation");
-                goTo(h.number);
+                goTo(h.number, h.type === "law" ? "law" : "interpretation");
               }
             }}
             placeholder="搜索 用空格隔开多个关键词"
@@ -306,11 +311,7 @@ export function Workbench() {
               ) : (
                 searchHits.map((h, idx) => (
                   <button key={`${h.type}-${h.number}-${idx}`}
-                    onClick={() => {
-                      if (h.type === "law" && mode !== "law") setMode("law");
-                      if (h.type === "interp" && mode !== "interpretation") setMode("interpretation");
-                      goTo(h.number);
-                    }}
+                    onClick={() => { goTo(h.number, h.type === "law" ? "law" : "interpretation"); }}
                     className="block w-full border-b border-[#3a4f6b]/50 px-4 py-2.5 text-left hover:bg-[#2d3d56] last:border-0">
                     <div className="flex items-center gap-2 text-xs">
                       <span className={`rounded px-1.5 py-0.5 ${h.type === "law" ? "bg-[#3b82f6]/20 text-[#3b82f6]" : "bg-[#d4a853]/20 text-[#d4a853]"}`}>
@@ -434,7 +435,7 @@ export function Workbench() {
             <div className="space-y-2">
               {relatedInterps.map((item) => (
                 <button key={item.id}
-                  onClick={() => { setMode("interpretation"); goTo(item.number); }}
+                  onClick={() => { goTo(item.number, "interpretation"); }}
                   className="block w-full text-left rounded-md border border-[#3a4f6b] bg-[#243044] p-3 transition-all hover:border-[#d4a853] hover:shadow-lg">
                   <div className="flex items-center gap-2 text-[11px]">
                     <span className="rounded bg-[#d4a853]/15 px-1.5 py-0.5 text-[#d4a853]">{item.doc}</span>
@@ -453,7 +454,7 @@ export function Workbench() {
             <div className="space-y-2">
               {relatedLaws.map((a: any) => (
                 <button key={a.number}
-                  onClick={() => { setMode("law"); goTo(a.number); }}
+                  onClick={() => { goTo(a.number, "law"); }}
                   className="block w-full text-left rounded-md border border-[#3a4f6b] bg-[#243044] p-3 transition-all hover:border-[#3b82f6] hover:shadow-lg">
                   <div className="flex items-center gap-2 text-[11px]">
                     <span className="rounded bg-[#3b82f6]/15 px-1.5 py-0.5 text-[#3b82f6]">法条</span>

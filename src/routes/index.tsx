@@ -289,7 +289,7 @@ export function Workbench() {
           <h1 className="font-serif text-lg font-bold text-[#d4a853] whitespace-nowrap">
             {mode === "law" ? "民事诉讼法及司法解释" : "民诉法司法解释"}
           </h1>
-          <span className="hidden lg:inline rounded-full border border-[#d4a853]/30 bg-[#d4a853]/12 px-2 py-0.5 text-[11px] text-[#d4a853] whitespace-nowrap">
+          <span className="hidden xl:inline rounded-full border border-[#d4a853]/30 bg-[#d4a853]/12 px-2 py-0.5 text-[11px] text-[#d4a853] whitespace-nowrap">
             {mode === "law" ? `民诉法 · ${TOTAL_LAW_ARTICLES} 条` : `司法解释 · ${TOTAL_INTERP_ARTICLES} 条`}
           </span>
         </div>

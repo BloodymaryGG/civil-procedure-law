@@ -277,7 +277,7 @@ export function Workbench() {
 
   /* ── Desktop ── */
   return (
-    <div className="h-screen w-full grid overflow-hidden" data-theme={theme}
+    <div className="h-dvh w-full grid overflow-hidden" data-theme={theme}
          style={{ gridTemplateColumns: "280px 1fr minmax(360px, 420px)", gridTemplateRows: "auto 1fr" }}>
       {/* ── Header ── */}
       <header className="col-span-3 grid items-center gap-x-4 gap-y-2 px-5 py-3"

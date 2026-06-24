@@ -343,7 +343,7 @@ export function Workbench() {
       </header>
 
       {/* ── 左栏：目录 ── */}
-      <aside className="flex flex-col overflow-hidden border-r border-[#3a4f6b] bg-[#1a2332]">
+      <aside className="flex flex-col overflow-hidden min-h-0 border-r border-[#3a4f6b] bg-[#1a2332]">
         <div className="flex-1 overflow-y-auto p-2">
           {(chapters as any[]).map((c: any) => {
             const isActiveChapter = chapter?.id === c.id;

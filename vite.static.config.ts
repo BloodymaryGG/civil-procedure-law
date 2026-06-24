@@ -14,6 +14,8 @@ export default defineConfig({
     tsconfigPaths(),
     VitePWA({
       registerType: "autoUpdate",
+      // 手动注册，加错误处理，避免 Safari HTTP 下 SW 失败导致白屏
+      injectRegister: null,
       includeAssets: ["favicon.svg", "pwa-192.png", "pwa-512.png"],
       manifest: {
         name: "民事诉讼法及司法解释",

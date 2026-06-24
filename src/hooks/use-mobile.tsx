@@ -1,6 +1,7 @@
 import * as React from "react";
 
 const MOBILE_BREAKPOINT = 768;
+const TABLET_BREAKPOINT = 1194;
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
@@ -16,4 +17,20 @@ export function useIsMobile() {
   }, []);
 
   return !!isMobile;
+}
+
+export function useIsTablet() {
+  const [isTablet, setIsTablet] = React.useState<boolean | undefined>(undefined);
+
+  React.useEffect(() => {
+    const onChange = () => {
+      const w = window.innerWidth;
+      setIsTablet(w >= MOBILE_BREAKPOINT && w < TABLET_BREAKPOINT);
+    };
+    onChange();
+    window.addEventListener("resize", onChange);
+    return () => window.removeEventListener("resize", onChange);
+  }, []);
+
+  return !!isTablet;
 }

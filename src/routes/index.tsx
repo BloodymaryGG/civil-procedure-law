@@ -4,7 +4,7 @@ import { lawArticles, lawChapters, TOTAL_LAW_ARTICLES } from "@/data/law-article
 import { interpretations, interpChapters, TOTAL_INTERP_ARTICLES } from "@/data/interpretations";
 import type { InterpretationArticle } from "@/data/types";
 import { ArticleBody, ArticleNav } from "@/components/site-chrome";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { searchAll, highlight as searchHighlight } from "@/lib/search";
 
 /* ─────────────────── 中文条号解析 ─────────────────── */
@@ -50,8 +50,10 @@ export function Workbench() {
   const [mounted, setMounted] = useState(false);
   const [mobileTab, setMobileTab] = useState<"article" | "side">("article");
   const centerScrollRef = useRef<HTMLDivElement>(null);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
   const tocActiveRef = useRef<HTMLButtonElement>(null);
   const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
 
   const totalArticles = mode === "law" ? TOTAL_LAW_ARTICLES : TOTAL_INTERP_ARTICLES;
   const chapters = mode === "law" ? lawChapters : interpChapters;
@@ -83,6 +85,7 @@ export function Workbench() {
     window.history.replaceState(null, "", `#${prefix}${suffix}`);
     centerScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     tocActiveRef.current?.scrollIntoView({ block: "nearest" });
+    rightPanelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [current, mode, mounted]);
 
   /* ── 搜索：法条 + 司法解释（使用 lib/search.ts 的多关键词检索） ── */
@@ -273,6 +276,185 @@ export function Workbench() {
     );
   }
 
+  /* ── Tablet ── */
+  if (isTablet) {
+    return (
+      <div className="h-screen w-full grid overflow-hidden" data-theme={theme}
+           style={{ gridTemplateColumns: "220px 1fr", gridTemplateRows: "auto 1fr" }}>
+        {/* ── Header ── */}
+        <header className="col-span-2 grid items-center gap-x-3 gap-y-2 px-4 py-2.5"
+          style={{ borderBottom: '1px solid var(--theme-border)', background: 'linear-gradient(135deg, var(--theme-header-bg) 0%, var(--theme-bg) 100%)', gridTemplateColumns: "minmax(0,auto) 1fr auto" }}>
+          <div className="flex items-center gap-2">
+            <button onClick={cycleTheme} title="切换主题" className="grid h-7 w-7 place-items-center rounded-md bg-[#d4a853]/15 border border-[#d4a853]/30 cursor-pointer hover:bg-[#d4a853]/25 transition-colors">
+              <Scale className="h-3.5 w-3.5 text-[#d4a853]" />
+            </button>
+            <h1 className="font-serif text-base font-bold text-[#d4a853] whitespace-nowrap">
+              {mode === "law" ? "民事诉讼法" : "民诉法司法解释"}
+            </h1>
+            <span className="rounded-full border border-[#d4a853]/30 bg-[#d4a853]/12 px-1.5 py-0.5 text-[10px] text-[#d4a853] whitespace-nowrap">
+              {mode === "law" ? `${TOTAL_LAW_ARTICLES}条` : `${TOTAL_INTERP_ARTICLES}条`}
+            </span>
+          </div>
+
+          <div className="relative w-full justify-self-center max-w-md">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94a3b8]" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && searchHits[0]) { const h = searchHits[0]; goTo(h.number, h.type === "law" ? "law" : "interpretation"); } }}
+              placeholder="搜索 空格分隔多词"
+              className="w-full rounded-lg border border-[#3a4f6b] bg-[#0f1419] py-1.5 pl-8 pr-2 text-xs text-[#e8edf4] outline-none placeholder:text-[#94a3b8]/60 focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6]/30" />
+            {search && (
+              <div className="absolute left-0 right-0 top-full z-40 max-h-72 overflow-y-auto rounded-lg border border-[#3a4f6b] bg-[#1a2332] shadow-2xl">
+                {searchHits.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-xs text-[#94a3b8]">无匹配结果</div>
+                ) : (
+                  searchHits.map((h, idx) => (
+                    <button key={`${h.type}-${h.number}-${idx}`}
+                      onClick={() => { goTo(h.number, h.type === "law" ? "law" : "interpretation"); }}
+                      className="block w-full border-b border-[#3a4f6b]/50 px-3 py-2 text-left hover:bg-[#2d3d56] last:border-0">
+                      <div className="flex items-center gap-1.5 text-[10px]">
+                        <span className={`rounded px-1 py-0.5 ${h.type === "law" ? "bg-[#3b82f6]/20 text-[#3b82f6]" : "bg-[#d4a853]/20 text-[#d4a853]"}`}>
+                          {h.type === "law" ? `法条 ${h.number}` : `解释 ${h.number}`}
+                        </span>
+                        <span className="text-[#94a3b8] truncate">{h.chapter}</span>
+                      </div>
+                      <div className="mt-0.5 line-clamp-1 text-xs text-[#e8edf4]/80" dangerouslySetInnerHTML={{ __html: highlight(h.snippet, search) }} />
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button onClick={toggleMode}
+              className="inline-flex items-center gap-1 rounded border border-[#d4a853]/40 bg-[#d4a853]/10 px-2 py-1 text-[10px] text-[#d4a853] hover:bg-[#d4a853]/20 transition-colors whitespace-nowrap">
+              <ArrowLeftRight className="h-3 w-3" />
+              {mode === "law" ? "司法解释" : "法条"}
+            </button>
+          </div>
+        </header>
+
+        {/* ── 左栏：目录 ── */}
+        <aside className="flex flex-col overflow-hidden min-h-0 border-r border-[#3a4f6b] bg-[#1a2332]">
+          <div className="flex-1 overflow-y-auto p-1.5">
+            {(chapters as any[]).map((c: any) => {
+              const isActiveChapter = chapter?.id === c.id;
+              const chapterLabel = c.chapter || c.chapterTitle;
+              const partLabel = c.partTitle || "";
+              return (
+                <div key={c.id} className="mb-1">
+                  <div className={`px-1.5 py-1 text-[10px] leading-tight rounded ${isActiveChapter ? "text-[#d4a853]" : "text-[#94a3b8]"}`}>
+                    {partLabel && <div className="opacity-70">{partLabel}</div>}
+                    <div className="font-medium">{chapterLabel}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-0.5 px-1 pb-1.5">
+                    {range(c.articleStart, c.articleEnd).map((n) => {
+                      const active = n === current;
+                      return (
+                        <button key={n} ref={active ? tocActiveRef : undefined} onClick={() => goTo(n)}
+                          className={`min-w-[1.6rem] rounded px-1 py-0.5 text-[10px] font-mono transition-colors ${active ? "bg-[#3b82f6] text-white shadow-sm" : "bg-[#243044] text-[#e8edf4]/70 hover:bg-[#2d3d56] hover:text-white"}`}>
+                          {n}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* ── 中栏：正文 + 关联内容 ── */}
+        <main ref={centerScrollRef} className="flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="flex items-center gap-2 text-[11px] text-[#94a3b8]">
+              {mode === "law" && <span className="rounded bg-[#3b82f6]/20 px-1.5 py-0.5 text-[#3b82f6]">法条</span>}
+              {mode === "interpretation" && <span className="rounded bg-[#d4a853]/20 px-1.5 py-0.5 text-[#d4a853]">司法解释</span>}
+              {chapter && <span>· {(chapter as any).chapter || (chapter as any).chapterTitle}</span>}
+              <span className="ml-auto text-[10px]">{mode === "law" ? "民事诉讼法" : "《民诉法解释》"}</span>
+            </div>
+
+            {mode === "law" && currentArticle && "title" in currentArticle && currentArticle.title && (
+              <h2 className="mt-2 font-serif text-base text-[#d4a853] border-b border-[#3a4f6b] pb-1.5">{(currentArticle as any).title}</h2>
+            )}
+
+            <h3 className="mt-3 text-xs text-[#94a3b8]">
+              {mode === "law" ? `第 ${current} 条` : `《民诉法解释》第 ${current} 条`}
+            </h3>
+
+            {currentArticle ? (
+              <ArticleBody paragraphs={(currentArticle as any).paragraphs} variant="dark" />
+            ) : (
+              <div className="rounded border border-dashed border-[#3a4f6b] p-6 text-center text-[#94a3b8] text-xs">该条暂无内容</div>
+            )}
+
+            {/* 关联内容（集成到正文下方） */}
+            {mode === "law" ? (
+              relatedInterps.length > 0 && (
+                <div className="related-card mt-6">
+                  <div className="related-card-header">⚖️ 关联司法解释</div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {relatedInterps.map((item) => (
+                      <button key={item.id}
+                        onClick={() => { goTo(item.number, "interpretation"); }}
+                        className="related-card-item">
+                        <div className="flex items-center gap-1.5 text-[10px]">
+                          <span className="text-[#d4a853]">解释</span>
+                          <span className="font-mono text-[#3b82f6]">第{item.number}条</span>
+                          {item.chapter && <span className="text-[#94a3b8] truncate">· {item.chapter}</span>}
+                        </div>
+                        <p className="mt-1 text-[11px] leading-relaxed text-[#e8edf4]/70 line-clamp-2">{item.paragraphs[0]}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            ) : (
+              relatedLaws.length > 0 && (
+                <div className="related-card mt-6" style={{borderColor: 'rgba(59,130,246,0.25)'}}>
+                  <div className="related-card-header" style={{color: '#3b82f6'}}>📜 关联法条</div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {relatedLaws.map((a: any) => (
+                      <button key={a.number}
+                        onClick={() => { goTo(a.number, "law"); }}
+                        className="related-card-item">
+                        <div className="flex items-center gap-1.5 text-[10px]">
+                          <span className="text-[#3b82f6]">法条</span>
+                          <span className="font-mono text-[#3b82f6]">第{a.number}条</span>
+                          {a.title && <span className="text-[#94a3b8] truncate">· {a.title}</span>}
+                        </div>
+                        <p className="mt-1 text-[11px] leading-relaxed text-[#e8edf4]/70 line-clamp-2">{a.paragraphs[0]}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* 翻页导航 */}
+          <div className="border-t border-[#3a4f6b] bg-[#1a2332] px-6 py-3">
+            <ArticleNav
+              prev={
+                <button disabled={!prev} onClick={() => prev && goTo(prev)}
+                  className="inline-flex items-center gap-1 rounded border border-[#3a4f6b] bg-[#0f1419] px-2.5 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6]">
+                  <ChevronLeft className="h-3.5 w-3.5" /> {prev ? `第 ${prev} 条` : "已是首条"}
+                </button>
+              }
+              center={<span className="text-[11px] text-[#94a3b8]">第 {current} 条 / {totalArticles}</span>}
+              next={
+                <button disabled={!next} onClick={() => next && goTo(next)}
+                  className="inline-flex items-center gap-1 rounded border border-[#3a4f6b] bg-[#0f1419] px-2.5 py-1.5 text-xs text-[#e8edf4] disabled:opacity-30 hover:border-[#3b82f6]">
+                  {next ? `第 ${next} 条` : "已是末条"} <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              }
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   /* ── Desktop ── */
   return (
     <div className="h-screen w-full grid overflow-hidden" data-theme={theme}
@@ -422,7 +604,7 @@ export function Workbench() {
       </main>
 
       {/* ── 右栏：关联信息 ── */}
-      <aside className="flex flex-col overflow-y-auto border-l border-[#3a4f6b] bg-[#1a2332] p-5">
+      <aside ref={rightPanelRef as React.RefObject<HTMLDivElement>} className="flex flex-col overflow-y-auto border-l border-[#3a4f6b] bg-[#1a2332] p-5">
         <h4 className="flex items-center gap-1.5 text-xs font-semibold text-[#d4a853] border-b border-[#3a4f6b] pb-2 mb-3">
           <BookOpen className="h-3.5 w-3.5" />
           {mode === "law" ? "关联司法解释" : "关联法条"}
